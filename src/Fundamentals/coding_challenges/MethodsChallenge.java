@@ -1,4 +1,4 @@
-package Fundamentals.basics;
+package Fundamentals.coding_challenges;
 
 public class MethodsChallenge {
     public static void main(String[] args) {
