@@ -1,4 +1,4 @@
-package Fundamentals.coding_exercises;
+package Fundamentals.basics.coding_exercises;
 
 public class PlayingCat {
 

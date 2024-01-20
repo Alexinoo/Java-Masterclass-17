@@ -1,4 +1,4 @@
-package Fundamentals.coding_challenges;
+package Fundamentals.basics.coding_challenges;
 
 public class SecAndMinBonusChallenge {
     public static void main(String[] args) {
