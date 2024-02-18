@@ -1,4 +1,4 @@
-package oop.master_challenge_part1;
+package oop.part5.master_challenge_part1;
 
 public class Main {
 
