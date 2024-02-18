@@ -1,4 +1,4 @@
-package oop.master_challenge_part2;
+package oop.part5.master_challenge_part2;
 
 public class Burger extends Item{
 
