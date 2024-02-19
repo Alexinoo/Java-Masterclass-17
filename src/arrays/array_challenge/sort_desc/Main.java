@@ -1,4 +1,4 @@
-package arrays.array_challenge;
+package arrays.array_challenge.sort_desc;
 
 import java.util.Arrays;
 import java.util.Random;
