@@ -111,7 +111,7 @@ public class Main {
 
         var groceryArray = groceries.toArray(new String[groceries.size()]);
 
-        System.out.println(Arrays.toString(groceryArray);
+        System.out.println(Arrays.toString(groceryArray));
 
 
 
