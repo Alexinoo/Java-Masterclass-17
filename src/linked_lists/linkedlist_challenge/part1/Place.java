@@ -1,4 +1,4 @@
-package linked_lists.linkedlist_challenge;
+package linked_lists.linkedlist_challenge.part1;
 
 public record Place(String name, int distance) {
     @Override
