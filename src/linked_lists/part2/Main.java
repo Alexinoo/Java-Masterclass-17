@@ -80,18 +80,7 @@ public class Main {
                         - then we call the hasNext variable which loops until the last element
                         - list.listIterator(1) takes in an index that specifies the index to start with
          */
-        LinkedList<String> placesToVisit = new LinkedList<>();
 
-        //Adding elements
-        placesToVisit.add("Sydney");
-        placesToVisit.add("Brisbane");
-        placesToVisit.add("Toowoomba");
-        placesToVisit.add("Melbourne");
-        placesToVisit.add(0,"Canberra");
-
-        System.out.println(placesToVisit);
-        //gettingElements(placesToVisit);
-        printItinerary3(placesToVisit);
     }
 
     private static void gettingElements(LinkedList<String> list){
@@ -108,7 +97,18 @@ public class Main {
     }
 
     public static void printItinerary(LinkedList<String> list){
-            System.out.println("Trip starts at "+list.getFirst());
+            System.out.println("Tr LinkedList<String> placesToVisit = new LinkedList<>();\n" +
+                    "\n" +
+                    "        //Adding elements\n" +
+                    "        placesToVisit.add(\"Sydney\");\n" +
+                    "        placesToVisit.add(\"Brisbane\");\n" +
+                    "        placesToVisit.add(\"Toowoomba\");\n" +
+                    "        placesToVisit.add(\"Melbourne\");\n" +
+                    "        placesToVisit.add(0,\"Canberra\");\n" +
+                    "\n" +
+                    "        System.out.println(placesToVisit);\n" +
+                    "        //gettingElements(placesToVisit);\n" +
+                    "        printItinerary3(placesToVisit);ip starts at "+list.getFirst());
             for (int i = 1; i < list.size(); i++) {
                 System.out.println("--> From: "+list.get(i-1)+ " to "+ list.get(i));
             }
