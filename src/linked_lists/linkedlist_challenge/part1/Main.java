@@ -1,4 +1,4 @@
-package linked_lists.linkedlist_challenge;
+package linked_lists.linkedlist_challenge.part1;
 
 import java.util.LinkedList;
 
