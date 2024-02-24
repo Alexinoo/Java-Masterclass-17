@@ -13,7 +13,7 @@ public class Main {
             - This is called a Type identifier and it can be any letter or word but T which is short
               for Type is commonly used
 
-            - Many of Java's libraries are written using generic classes and interfaces
+            - Many of Java's libraries are written using generic classes and abstraction.interfaces
      */
 
     public static void main(String[] args) {
