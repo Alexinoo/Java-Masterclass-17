@@ -1,4 +1,4 @@
-package nested_classes.inner_classes;
+package nested_classes.inner_classes.part1;
 
 import java.util.ArrayList;
 import java.util.List;
