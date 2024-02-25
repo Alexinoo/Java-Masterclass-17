@@ -1,7 +1,6 @@
-package lambda_expressions.part4_functional_interfaces;
+package lambda_expressions.part4_functional_interfaces.consumer_interfaces;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -23,11 +22,11 @@ public class Main {
         double result6 = calculator((Double a,Double b)-> a + b,5.0,5.0);
         var result7 = calculator(( a, b)-> a.toUpperCase() + " " +b.toUpperCase(),"alex","mwangi");
 
-        ////
-        //
+        //////////////////////////////////////////////////
+        //////////////////////////////////////////////////
         // EXAMPLE THAT USES BOTH Consumer AND BiConsumer
-        //
-        //
+        //////////////////////////////////////////////////
+        //////////////////////////////////////////////////
 
 
         //List of arrays with 2 double values rep lat and long of 3 points on Mississipi river
@@ -60,32 +59,6 @@ public class Main {
 
 
 
-        ///////////////////////////////////////////////
-        // ////////////////////////////////////////////
-        // Example That Uses Predicate Interface //////
-        ///////////////////////////////////////////////
-        ///////////////////////////////////////////////
-        System.out.println("/// Example That Uses Predicate Interface ///");
-        List<String> listArr = new ArrayList<>(List.of("Alpha","Bravo","Charlie","Delta"));
-        listArr.removeIf(element -> element.equalsIgnoreCase("Bravo"));
-        listArr.forEach(element -> System.out.println(element));
-
-        ///Add more elements to the listArr
-        listArr.addAll(List.of("Echo","Eclesiastics", "Foxtrot", "Golf", "Hotel"));
-
-        //Printing List again
-        System.out.println("/// NATO phonetic alphabet ///");
-        listArr.forEach(element -> System.out.println(element));
-
-        System.out.println("_".repeat(30));
-
-
-        //Remove a string that starts with 'e' and 'a'
-        listArr.removeIf(element->element.startsWith("Ec"));
-
-        //Printing List again
-        System.out.println("/// NATO phonetic alphabet - Removed alphabet starting with Ec ///");
-        listArr.forEach(element -> System.out.println(element));
 
 
     }
