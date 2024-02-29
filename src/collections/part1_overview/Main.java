@@ -34,6 +34,7 @@ public class Main {
         System.out.println("Gary is in the list ?" +list.contains("Gary"));
 
         //list.sort() - does not work on HashSet
+
     }
 
     private static void printList(Collection<String> myList){
