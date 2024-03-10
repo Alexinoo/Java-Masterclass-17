@@ -1,6 +1,7 @@
 package final_classes.part1_final_modifier;
 
 import final_classes.part0_consumer_specific.ChildClass;
+import final_classes.part2_external.util.Logger;
 
 public class Main {
 
@@ -53,6 +54,28 @@ public class Main {
         doXYZ(xArgument,16,zArgument);
         System.out.println("After Method, xArgument: "+xArgument); // xArgument remains unchanged even after we assign x = c in doXYZ
         System.out.println("After Method, zArgument: "+zArgument); // zArgument changed to "Only saying this: Section 16" after doXYZ is invoked
+
+        //
+        //
+        //
+        //
+        // Why change isn't good
+        // Created a Logger class on part2_external.util.Logger;
+        // Created static method logToConsole that takes 1 parameter of type CharSequence
+        StringBuilder tracker = new StringBuilder("Step 1 is abc");
+        Logger.logToConsole(tracker.toString()); //03/10/24 12:52:35 : Step 1 is abc
+        tracker.append(", Step 2 is xyz");
+        Logger.logToConsole(tracker); //03/10/24 12:52:35 : Step 2 is xyz
+        System.out.println("After logging, tracker = "+tracker); //After logging, tracker =
+
+
+        // Passing as tracker.toString
+        StringBuilder tracker2 = new StringBuilder("This is another");
+        Logger.logToConsole(tracker2.toString()); //03/10/24 13:07:13 : This is another
+        tracker2.append(" extra step using toString()");
+        Logger.logToConsole(tracker2.toString()); //03/10/24 13:07:13 : This is another extra step using toString()
+
+        System.out.println("After logging, tracker = "+tracker2); //After logging, tracker = This is another extra step using toString()
 
     }
 
