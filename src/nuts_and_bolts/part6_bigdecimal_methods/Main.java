@@ -101,7 +101,7 @@ public class Main {
         //BigDecimal percent = BigDecimal.ONE.divide(BigDecimal.valueOf(beneficiaries), MathContext.DECIMAL32);
         //BigDecimal percent = BigDecimal.ONE.divide(BigDecimal.valueOf(beneficiaries), MathContext.DECIMAL64);
         BigDecimal percent = BigDecimal.ONE.divide(BigDecimal.valueOf(beneficiaries), MathContext.DECIMAL128);
-        System.out.println(percent);
+        System.out.println("Percent = "+percent);
 
         /*
          * If we wanted more precision than that we can always create our own MathContext instance & specify exactly how
@@ -114,10 +114,10 @@ public class Main {
          * BigDecimal is said to have arbitrary precision because you the developer get to decide what precision you need
          * and want to use in your math operations
          */
-        percent = BigDecimal.ONE.divide(BigDecimal.valueOf(beneficiaries),
+        BigDecimal ourOwnPercent = BigDecimal.ONE.divide(BigDecimal.valueOf(beneficiaries),
                 new MathContext(60,RoundingMode.UP));
 
-        System.out.println(percent);
+        System.out.println("Our own customized percent = "+ourOwnPercent);
 
         /*
          * Let's now check amount for each beneficiary using more BigDecimal maths
@@ -126,7 +126,7 @@ public class Main {
          * We get 333333333.33 but is this really the value
          * add setScale(2,RoundingMode.HALF_UP)
          */
-        BigDecimal checkAmount = policyPayout.multiply(percent);
+        BigDecimal checkAmount = policyPayout.multiply(ourOwnPercent);
         System.out.printf("%.2f%n",checkAmount);
         checkAmount = checkAmount.setScale(2,RoundingMode.HALF_UP);
         System.out.printf("%-15s %-15d %-8d %d %n",
