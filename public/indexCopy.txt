@@ -1,0 +1,11 @@
+Directory Contents: 
+C:\JMC17\Java-Masterclass-17\public
+C:\JMC17\Java-Masterclass-17\public\assets
+C:\JMC17\Java-Masterclass-17\public\assets\icons
+C:\JMC17\Java-Masterclass-17\public\assets\icons\index.txt
+C:\JMC17\Java-Masterclass-17\public\assets\icons\indexCopy.txt
+C:\JMC17\Java-Masterclass-17\public\assets\index.txt
+C:\JMC17\Java-Masterclass-17\public\assets\indexCopy.txt
+C:\JMC17\Java-Masterclass-17\public\index.txt
+C:\JMC17\Java-Masterclass-17\public\indexCopy.txt
+Generated: 2024-03-29T14:10:29.889373500
