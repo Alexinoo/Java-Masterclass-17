@@ -35,6 +35,27 @@ package files_input_output.part20_random_access_file;
  * The above code only rep step 1 from the slide
  *
  *
+ *
+ *
+ * /////// PART 2 ////////
+ *
+ * Getting back to the BuildStudentData class and add a 2nd arg to the build(), a boolean, named separateIndex
+ * Change the starting file position, based on this flag
+ * Use a ternary operator to check..if it's true .. starts from 0 otherwise, it will be calculated by the file
+ *  pointer
+ * If the index is in a separate file, the records will be written at position 0, of the data file
+ *
+ * The last change is on the call to the writeIndex()
+ *  - add 1st arg that checks whether the separateIndex is set and if so create a RAC instance with a ".idx" extension
+ * Go to the main() and uncomment the line that is going to build the file
+ *  - update from studentData to student so that the file names now will be "student.dat" and "student.idx"
+ *  - pass true as the second parameter
+ *
+ * Running this :-
+ *  - outputs both "student.dat" and "student.idx" files
+ *
+ * Comment out the line to build this data
+
  */
 
 import java.io.IOException;
@@ -48,7 +69,7 @@ import java.util.regex.Pattern;
 
 public class BuildStudentData {
 
-    public static void build(String datFileName){
+    public static void build(String datFileName , boolean separateIndex){
 
         Path studentJson = Path.of("students.json");
         String dataFile = datFileName + ".dat";
@@ -63,7 +84,7 @@ public class BuildStudentData {
             var records = data.split(System.lineSeparator());
             System.out.println("# of records = "+records.length);
 
-            long startingPos = 4 + (16L * records.length);
+            long startingPos = separateIndex ? 0 : 4 + (16L * records.length);
             Pattern idPattern = Pattern.compile("studentId\":([0-9]+)");
 
             try(RandomAccessFile raf = new RandomAccessFile(dataFile,"rw")){
@@ -76,7 +97,9 @@ public class BuildStudentData {
                         raf.writeUTF(record);
                     }
                 }
-                writeIndex(raf , indexedIds);
+                writeIndex( (separateIndex) ? new RandomAccessFile(
+                                        datFileName + ".idx","rw"):
+                        raf , indexedIds);
             }catch (IOException e) {
                 throw new RuntimeException(e);
             }
