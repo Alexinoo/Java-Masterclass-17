@@ -1,4 +1,4 @@
-package concurrency.part10_producer_consumer_app;
+package concurrency.part11_deadlock_wait_notify;
 
 import java.util.Random;
 
