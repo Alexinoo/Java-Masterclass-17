@@ -92,14 +92,108 @@ public class Main {
      * Running this:-
      *  - We get a deadlock as before
      *  - This means using an explicit lock isn't going to fix all your deadlocks
-     *  - But unlike, the implicit lock, this type of lock gives us some options to choose from before a thread acquires the lock and blocks
+     *  - But unlike, the implicit lock, this type of lock gives us some options to choose from before a
+     *    thread acquires the lock and blocks
+     *
+     * java.util.concurrent.locks CONTINUED......
+     * You remember we included a lock an unlock call in the read() removing the synchronized keyword from its declaration
+     * Also removed wait and notify ()s call since they can't be used outside of a synchronized () or statement
+     * Running the code though, simply produced a deadlock
+     * And so we might be asking ourselves, what is the advantage of using explicit lock then
+     *
+     * Instead of the lock(), we also have some other ()s available and one of them is tryLock()
+     *
+     * tryLock()
+     * ........
+     * Returns a boolean
+     * use it on read()
+     * Will wrap the try {} in an if statement
+     * Tests if another thread has already got this lock
+     * If another thread doesn't, then this () will acquire the lock and returns true back
+     * If another thread does have the lock, it will return false
+     * Then on the else statement
+     *  - If we can't acquire the lock then we need to figure out something else to do
+     *  - Will just print that "read was blocked"
+     *  - Also set hasMessage flag to false
+     *
+     * use it on write()
+     *  - Do something similar
+     *
+     *
+     * Running this :-
+     *  - We see that sometimes or Producer and Consumer code couldn't get a lock, but still manages to come out OK
+     *  - May not always be true depending on the timing of the reads and the writes but the code doesn't lock the app
+     *  - Still, this might not be an acceptable solution, if messages do eventually get skipped
+     *
+     * Another Option
+     * Is to use an overloaded version of the tryLock()
+     * This takes a no and a timeUnit value as arg
+     * Will do this in the write()
+     *  - Pass 3 as the 1st arg
+     *  - Pass TimeUnit.SECONDS as the 2nd arg
+     * This means , the code will wait up until 3 sec have passed, attempting to acquire
+     *  the lock from the Consumer code
+     * Unlike, the tryLock() with no args, the overloaded one throws an exception - so will wrap it in a try-catch
+     *  - Catch InterruptedExc and throw it as a RuntimeException
+     *
+     * But why does this throw an exception anyway?
+     * Well unlike the simple tryLock() , it's possible to interrupt this thread, before it times out
+     *
+     * Running this :-
+     *  - You might notice there is a bit of a wait, before the 1st or 2nd msg because the reader got the lock before
+     *     the writer
+     *  - The writer is going to wait up to 3 sec to attempt to acquire that lock
+     *
+     *
+     * In addition, to these ()s, the Reentrant lock can offer invaluable info about the lock
+     * To illustrate this,
+     *  - Go to main() and pass thread names to both of the thread constructors
+     *  - Set them as "Reader" and "Writer"
+     *  - Then go to the read() in the MessageRepository
+     *      - After the finally clause in the print statement - include the lock itself
+     *  - Do the same thing, in the write()
+     *
+     *
+     * Running this:-
+     *  - Now in addition to knowing that the lock has already been acquired, you can see exactly which thread
+     *    actually does have the lock, which of course is just the opposite in this case
+     *  - This would be useful info, if you were managing many threads for example
+     *
+     * Lock Hold Count
+     * ...............
+     * The hold count of a lock counts the no of times that a single thread, the owner of the lock has acquired the lock
+     *  - When a thread acquires the lock for the first time, the lock hold's count is set to 1
+     *  - If a lock is reentrant, and a thread, reacquires the same lock, the lock's hold count will get incremented
+     *  - When a thread release a lock, the lock's hold count is decremented
+     *  - A lock is only released when it's hold count becomes 0
+     * Because of this, it's really important to include a call to the unlock() in a finally clause, of any code that
+     *  will acquire a lock, even if it's reentrant
+     *
+     * Advantages of using Lock Implementations
+     * .........................................
+     * - Explicit Control - Have control over when to acquire and release locks, making it easier to avoid deadlocks
+     *                      and manage other concurrency challenges
+     * - Timeouts - Allows you to attempt to acquire a lock without blocking indefinitely
+     * - Along with timeouts, Interruption Locking lets you handle interruptions during acquisition more gracefully
+     * - Improved debugging ()s let you query the no of waiting threads, and check if a thread holds a lock
+     *
+     * In many cases, the monitor lock is sufficient, and easier to use for basic synchronization needs
+     * However, when dealing with more complex concurrency scenarios, you may need fine-grained control, and
+     *  explicit locks can be another tool, to ensure thread safety
+     * In addition to locks, the java.util.concurrent package offers us concurrent collections and classes for managing
+     *  a group of concurrent threads
+     *
+     * We'll go through those classes for managing threads.
+     *
+     * These implement an Interface appropriately called the Executor
+     *
      */
     public static void main(String[] args) {
 
         MessageRepository messageRepository = new MessageRepository();
 
-        Thread reader = new Thread(new MessageReader(messageRepository));
-        Thread writer = new Thread(new MessageWriter(messageRepository));
+        Thread reader = new Thread(new MessageReader(messageRepository),"Reader");
+        Thread writer = new Thread(new MessageWriter(messageRepository),"Writer");
 
         writer.setUncaughtExceptionHandler((thread , exc)->{
             System.out.println("Writer had an exception: "+exc);

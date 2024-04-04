@@ -1,5 +1,6 @@
 package concurrency.part13_lock_api;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -12,35 +13,51 @@ public class MessageRepository {
     private final Lock lock = new ReentrantLock();
 
     public String read(){
-        lock.lock();
-        try {
-            while(!hasMessage){
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            hasMessage = false;
-        }finally {
-            lock.unlock();
-        }
+       if(lock.tryLock()) {
+           try {
+               while (!hasMessage) {
+                   try {
+                       Thread.sleep(500);
+                   } catch (InterruptedException e) {
+                       throw new RuntimeException(e);
+                   }
+               }
+               hasMessage = false;
+           } finally {
+               lock.unlock();
+           }
+       }else{
+           System.out.println("** read was blocked "+lock);
+           hasMessage = false;
+       }
 
         return message;
     }
 
     public synchronized void write(String message){
-        while (hasMessage){
-            //if there is a message
-            // wait for consumption
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        try {
+            if (lock.tryLock(3, TimeUnit.SECONDS)) {
+                try {
+                    while (hasMessage) {
+                        //if there is a message
+                        // wait for consumption
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    hasMessage = true;
+                } finally {
+                    lock.unlock();
+                }
+            } else {
+                System.out.println("** write blocked "+lock);
+                hasMessage = true;
             }
+        }catch (InterruptedException e){
+            throw new RuntimeException(e);
         }
-        hasMessage = true;
-        notifyAll();
         this.message = message;
     }
 }
