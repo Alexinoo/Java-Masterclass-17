@@ -1,7 +1,9 @@
-package concurrency.part12_synchronization_challenge;
+package concurrency.part18_executor_service_challenge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /*
  * Need a place to put orders when they're received
@@ -27,13 +29,12 @@ public class ShoeWarehouse {
     private List<Order> store;
     public final static String[] Products = {"Running Shoes","Sandals","Boots","Slippers","High Tops"};
 
-
+    private final ExecutorService fulfillmentService;
 
     public ShoeWarehouse() {
         this.store = new ArrayList<>();
-
+        fulfillmentService = Executors.newFixedThreadPool(3);
     }
-
 
     public synchronized void receiveOrder(Order item){
         while (store.size() > 20){
@@ -44,7 +45,8 @@ public class ShoeWarehouse {
             }
         }
         store.add(item);
-        System.out.println(" Incoming Batch: "+item);
+        System.out.println(Thread.currentThread().getName()+ " Incoming Batch: "+item);
+        fulfillmentService.submit(this::consumeOrder);
         notifyAll();
     }
 
@@ -60,5 +62,9 @@ public class ShoeWarehouse {
         System.out.println(Thread.currentThread().getName() +" Consumed Batch: "+item);
         notifyAll();
         return item;
+    }
+
+    public void shutDown() {
+        fulfillmentService.shutdown();
     }
 }
