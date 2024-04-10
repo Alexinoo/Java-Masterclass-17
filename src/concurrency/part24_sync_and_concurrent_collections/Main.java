@@ -1,6 +1,8 @@
 package concurrency.part24_sync_and_concurrent_collections;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,7 +85,15 @@ public class Main {
          * These are some of the problems that can occur, when you use a class that's not safe, in a multi-threaded operation
          *  - Using with a parallel streams, like we are doing here , really demonstrates the problems
          *
-         * Changing TreeMap to ConcurrentSkipListMap
+         * Changing TreeMap to a sorted ConcurrentSkipListMap
+         *
+         * Running this:
+         *  - prints sorted by last name
+         * `- did not throw an exception
+         *  - prints the correct total of 10000 counts in my map
+         *
+         * Using ConcurrentSkipListMap is one thread safe option
+         *
          */
 
         var lastCounts = new ConcurrentSkipListMap<String,Long>();
@@ -91,16 +101,83 @@ public class Main {
                 .limit(10000)
                 .parallel()
                 .forEach(person -> lastCounts.merge(person.lastName(), 1L,Long::sum));
-
         System.out.println(lastCounts);
 
         total = 0;
         for (var count : lastCounts.values())
             total += count;
         System.out.println("Total = "+total);
-
         System.out.println(lastCounts.getClass().getName());
 
+        System.out.println("_".repeat(50));
+
+        /*
+         * Another way to fix this is to wrap instantiation of the TreeMap in a call to a synchronized wrapper collection
+         * Call synchronizedMap() on the Collections Class
+         *
+         * Running this:
+         *  - prints last names in a sorted order
+         *  - prints 10000 records
+         *  - no exception thrown
+         *  - consistent results after several runs
+         *
+         * The type printed in this output too, is a special type on Collections Class called synchronizedMap()
+         *
+         * TreeMap (sorted) & HashMap (not sorted)
+         * .......................................
+         *  - Neither of these classes is thread-safe and shd be avoided when you're working with parallel processes
+         *      if multiple threads are accessing them asynchronously
+         *
+         * ConcurrentHashMap(not sorted) & ConcurrentSkipListMap(sorted)
+         *  - These are 2 concurrent classes in the java.util.concurrent package
+         *  - Both are thread safe
+         *
+         * Concurrent$SynchronizedMap
+         * There's also a synchronized class we can get by using a static () on the Collections Class
+         * Only Concurrent$SynchronizedMap is considered a blocking type, of the 3 thread-safe types
+         * This means other threads will block, waiting for the access to the map
+         *
+         * That's one of the differences between synchronized classes and concurrent classes
+         *
+         * Concurrent Classes vs Synchronized Wrapper Classes
+         * ..................................................
+         * Both concurrent and synchronized collections are thread-safe, and can be used in parallel streams, or in a
+         *  multi-threaded application
+         *
+         * Synchronized collections
+         *  - Implemented using locks which protect the collection from concurrent access
+         *      - a single lock is used to synchronize access to the entire map
+         *
+         *  Concurrent collections
+         *  - Are more efficient than synchronized collections
+         *      - They use fine-grained techniques or non-blocking algorithms to enable safe concurrent access
+         *          without the need for heavy-handed locking meaning synchronized or single access locks
+         *
+         * Concurrent collections are recommended over Synchronized collections in most cases
+         */
+
+        var lastCounts2 = Collections.synchronizedMap(new TreeMap<String,Long>());
+        Stream.generate(Person::new)
+                .limit(10000)
+                .parallel()
+                .forEach(person -> lastCounts2.merge(person.lastName(), 1L,Long::sum));
+        System.out.println(lastCounts2);
+
+        total = 0;
+        for (var count : lastCounts2.values())
+            total += count;
+        System.out.println("Total = "+total);
+        System.out.println(lastCounts2.getClass().getName());
+
+        System.out.println("_".repeat(50));
+
+        /*
+         * Examples with other Collections Types
+         * For Arrays and ArrayList, you can use terminal operations, toArray() or toList() with parallel streams
+         *
+         * Create MainLists Class
+         *  -> Go to this class to check comments
+         */
 
 
 
