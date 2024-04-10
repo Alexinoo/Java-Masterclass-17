@@ -6,10 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.stream.Stream;
 
 public class VisitorList {
     /* Thread-safe Lists and Queues, ArrayBlockingQueue
@@ -42,7 +40,7 @@ public class VisitorList {
      *
      * To Execute this code
      *  - Create a ScheduledExecutor "producerExecutor" and assign that a new single threaded scheduled executor
-     *  - Execute task every second starting immediately with o sec delay, in other words for the first task
+     *  - Execute task every second starting immediately with 0 sec delay, in other words for the first task
      *
      * Stop at some point, but need to run for 10 sec first by using the awaitTermination() with a timeout
      *
@@ -160,25 +158,196 @@ public class VisitorList {
      *  safe queue
      *
      *
+     * //////////////////  ArrayBlockingQueue, Consumer Tasks ///////////////////////////////
+     *
+     * Create a master list of visitors
+     *  - represents the park system's currently registered visitors
+     *  - Our visitor's center only wants to give out discounts to new visitors
+     * Use
+     *   static final masterList : CopyOnWriteArrayList<Person>
+     *
+     * This class is also thread safe & it's not a fixed size and it never blocks
+     *
+     * Next
+     *  - populate this list with a static initializer block
+     *  - since its final, its the only place, other than the declaration statement itself, to assign a value
+     *  - also lets us know one way you can collect a stream of elements, into this concurrent class
+     *      - generate random persons
+     *      - distinct - each customer is unique by combination of name and age (limit the no of new visitors we encounter)
+     *      - limit to 2500
+     *      - use collect terminal operation and pass 3 args
+     *          - supplier first - () reference for a new CopyOnWriteArrayList
+     *          - accumulator - () reference to add an element to this array list
+     *          - combiner  - () reference to addAll
+     *
+     * Next : Set up a Consumer runnable just after the producer runnable
+     *  - Call it consumer
+     *  - get the thread name
+     *  - print the thread name and the queue size
+     *  - return the first visitor at the head of the queue using poll()
+     *  - if the visitor is not null
+     *      - print which thread is processing which visitor
+     *          - check if the curr visitor is in the masterList
+     *              - if they aren't, in the master list, add them
+     *                 - also prints they are new and should get a coupon
+     *  - Print the newVisitors queue size again, after this process
+     *
+     * - Since we want consumer threads running, create a thread pool
+     *     - Needs to be scheduled
+     *     - Create a new Scheduled thread pool with 3 threads at the start
+     * - Since we want to schedule 3 tasks, wrap this in a for loop
+     *     - use scheduleAtFixedRate and pass the consumer runnable, have the first task start after 6 sec have elapsed
+     *        then have them scheduled at every 3 sec thereafter
+     * - Need to shut down the consumer executor at some point
+     *     - copy the while loop and the shutdown statements and paste a copy at the end of this ()
+     *     - update from producerExecutor to consumerPool
+     *     - update the timeout in the awaitTermination () from 20 sec to 3 sec
+     *
+     * - Change the timeout in the awaitTermination () call from producerExecutor from 20 sec to 10 sec
+     * - Delete the DrainedQueue.txt first
+     *
+     * Will change the print statements in the producer runnable , so that the output will be easier to understand
+     *  - change from adding to queueing
+     *  - comment out on the code that prints the entire queue
+     *
+     *
+     * OK, Looking at this code, we should get 5 visitors queued up, before any consumer threads get started
+     * While the 6th visitor is waiting to be queued in the offer(), for that 5 seconds, the consumer threads will
+     *  start polling the queue and the 6th visitor shd be successfully added to the queue
+     * This means the code won't be writing to the DrainingQueue.txt file
+     *
+     * 3 consumer threads will work on the queue at fixed intervals, starting up every 3 sec after an initial delay of
+     *  6 sec
+     *
+     * This will give the single threaded produces the chance to add 3 more visitors to the queue
+     *
+     * Running this:-
+     *  - visitors queue up every second
+     *  - pauses at the 6th visitor ( call to the offer() has 5 sec timeout - waits up to 5 sec to succeed)
+     *  - meanwhile, the consumer threads start polling the queue
+     *  - Each finds a full queue
+     *      - each will get a visitor at the head of the queue
+     *  - Notice that each got a different visitor
+     *
+     * This means the ArrayBlockingQueue is doing its job, managing the head of the queue efficiently in a
+     *  multi-threaded environment
+     *
+     * After processing, the queue size is 3, that's because the producer was able to add that 6th visitor while these
+     *  threads were processing their element
+     *
+     * This continues and we can see statements that 1 or 2 visitors added to the master list and getting a coupon
+     *
+     * Notice also that the poll() doesn't block if the queue is empty
+     *  - just returns a null value
+     *
+     * Running again, we see 1 or 2 visitors are added out of a total of 9 or 10 queued.
+     *
+     * Adding visitors to the master list is an infrequent occurrence, which is the reason why we chose
+     *  CopyOnWriteList
+     *
+     * CopyOnWriteList
+     * ...............
+     * The name "CopyOnWrite" is important
+     * Whenever this list is modified, by adding,updating, or removing elements, a new copy of the underlying array
+     *  is created
+     * The modification is performed on the new copy, allowing concurrent read operations to use the original
+     *  unmodified []
+     * This ensures that reader threads aren't blocked by writers
+     * Since changes are made to a separate copy of the [], there aren't any synchronization issues between the reading
+     *  and writing threads
+     * This is ordinarily too costly but may be more efficient than alternatives when traversal operations, vastly
+     *  outnumber mutations
+     *
+     *
+     * Removing Single Element From the ArrayBlockingQueue
+     * ...................................................
+     * The ArrayBlockingQueue has different ()s to ge an element from the queue
+     * Most of these will get the element at the head of the queue, or the first in
+     * If the queue is empty, a () will return null or block as described as
+     * The instructor has include the peek() since it's going to return an element from the queue, but it doesn't
+     *  actually remove it from the queue
+     * peek() can be used to check the queue, before attempting a blocking ()
+     *
+     * Others include :
+     *  - peek()
+     *  - poll()
+     *  - poll(long timeout,TimeUnit unit)
+     *  - remove()
+     *  - remove(Object obj)
+     *  - take()
+     *
+     *
+     * Change the poll() to include a timeout.
+     *  - This makes this code more efficient, forcing a thread to hang out and wait rather than disposing a thread
+     *     and creating one, when there's no work
+     *  - Go to consumer runnable and add timeout args to the poll()
+     *      - make it 5 sec , so a thread will wait up to 5 sec for a queued element to be added
+     *      - handle checked exc - InterruptedException use try-catch
+     *
+     * Change the rate the producer adds a visitor from 1 sec to say 3 seconds,
+     *  - so that the queue will be empty more often
+     *
+     * Change the fixed rate
+     *  - so that the consumer threads run more often every second after the first delay of 6 sec
+     *
+     *
+     * Running this :
+     *  - 3 visitors are added by the time our 3 consumer threads are kicked off and those threads can do their work
+     *  - Then we see the 3 threads polling again, and getting an empty queue with size 0
+     *  - Then the producer adds a fourth visitor, who's immediately processed by one of the waiting threads
+     *  - Once the 10 sec elapses, the application ends
+     *
+     * You might have a good idea to waiting a little bit to wait for the elements to be added to the queue, instead
+     *  of trying then immediately failing
+     *
+     * Use take() instead of poll(5, TimeUnit.SECONDS)
+     *  - Replace poll() with take()
+     *
+     * Running this :-
+     *  - This code runs as it did before, until the 2nd round of consumer threads, encounter an empty queue
+     *  - Then the app hangs and never shuts down
+     *
+     * There might be very valid reasons for blocking indefinitely, and having these threads waiting here
+     *
+     * We used Consumer-Producer example with 2 more thread-safe classes
+     *
+     * ArrayBlockingQueue
+     *  - gives us a lot of different options, to control and manage the shared data being processed
+     *
+     * CopyOnWriteArrayList
+     *  -  useful when the shared data is mostly going to be accessed for reading
+     *  - An expensive copy of the array list is made, if adds, or updates are made to the list, so make
+     *    sure you know how your shared list will be accessed before making a decision to use this type
+     *
+     * The alternative to CopyOnWriteArrayList is the ConcurrentLinkedQueue which we discussed in the previous slide
+     *
      */
+
+    private static final CopyOnWriteArrayList<Person> masterList;
+
+    static {
+        masterList = Stream.generate(Person::new)
+                .distinct()
+                .limit(2500)
+                .collect(CopyOnWriteArrayList::new,CopyOnWriteArrayList::add, CopyOnWriteArrayList::addAll);
+    }
 
     private static final ArrayBlockingQueue<Person> newVisitors = new ArrayBlockingQueue<>(5);
     public static void main(String[] args) {
+
+
         Runnable producer = ()-> {
             Person visitor = new Person();
-            System.out.println("Adding "+ visitor);
+            System.out.println("Queueing "+ visitor);
             boolean isQueued = false;
             try{
-                //isQueued = newVisitors.add(visitor);
-                //newVisitors.put(visitor);
-                //isQueued = true;
                 isQueued = newVisitors.offer(visitor,5, TimeUnit.SECONDS);
             }catch (InterruptedException e){
                 System.out.println("Illegal State Exception!");
             }
-            if (isQueued)
-                System.out.println(newVisitors);
-            else{
+            if (isQueued) {
+                //System.out.println(newVisitors);
+            }else{
                 System.out.println("Queue is Full, cannot add "+visitor);
                 System.out.println("Draining Queue and writing data to a file");
 
@@ -199,17 +368,52 @@ public class VisitorList {
             }
         };
 
+        Runnable consumer = ()-> {
+          String threadName = Thread.currentThread().getName();
+            System.out.println(threadName + "Polling queue "+ newVisitors.size());
+            Person visitor = null;
+            try {
+                visitor = newVisitors.take();
+               // visitor = newVisitors.poll(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if (visitor != null){
+                System.out.println(threadName + " "+ visitor);
+                if (!masterList.contains(visitor)){
+                    masterList.add(visitor);
+                    System.out.println("--> New Visitor gets Coupon! : "+visitor);
+                }
+            }
+            System.out.println(threadName + " done "+ newVisitors.size());
+        };
+
         ScheduledExecutorService producerExecutor = Executors.newSingleThreadScheduledExecutor();
-        producerExecutor.scheduleWithFixedDelay(producer , 0, 1, TimeUnit.SECONDS);
+        producerExecutor.scheduleWithFixedDelay(producer , 0, 3, TimeUnit.SECONDS);
+
+        ScheduledExecutorService consumerPool = Executors.newScheduledThreadPool(3);
+        for (int i = 0; i < 3; i++) {
+            consumerPool.scheduleAtFixedRate(consumer,6,1 , TimeUnit.SECONDS);
+        }
 
         while (true){
             try {
-                if(!producerExecutor.awaitTermination(20, TimeUnit.SECONDS))
+                if(!producerExecutor.awaitTermination(10, TimeUnit.SECONDS))
                     break;
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
         producerExecutor.shutdown();
+
+        while (true){
+            try {
+                if(!consumerPool.awaitTermination(3, TimeUnit.SECONDS))
+                    break;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        consumerPool.shutdown();
     }
 }
