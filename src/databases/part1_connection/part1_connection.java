@@ -1,4 +1,4 @@
-package databases;
+package databases.part1_connection;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
