@@ -209,11 +209,17 @@ public class Main {
             String columnName = "artist_name";
 //            String columnValue = "Elf";
 //            String columnValue = "Neil Young";
+//            String columnValue = "Bob Dylan";
+//            String columnValue = "Elf";
             String columnValue = "Bob Dylan";
 
             if(!executeSelect(statement , tableName,columnName,columnValue)){
-                System.out.println("Maybe we should add this record");
-                insertRecord(statement,tableName,new String[]{columnName},new String[]{columnValue});
+//                System.out.println("Maybe we should add this record");
+//                insertRecord(statement,tableName,new String[]{columnName},new String[]{columnValue});
+                insertArtistAlbum(statement , columnValue,columnValue);
+            }else {
+//                deleteRecord(statement,tableName,columnName,columnValue);
+                updateRecord(statement,tableName,columnName,columnValue,columnName,columnValue.toUpperCase());
             }
         }catch (SQLException e){
             e.printStackTrace();
@@ -262,4 +268,185 @@ public class Main {
             executeSelect(statement , table,columnNames[0],columnValues[0]);
         return recordsInserted > 0;
     }
+
+    /////////////////////////////// Update , Delete Statements , and Inserting related Records  ////////////////////////////////
+
+    /*
+     * Delete Function
+     * Construct delete sql
+     * Print the generated query and execute it
+     * Get the no of records deleted by calling getUpdateCount()
+     *  - if no of records deleted exceed 0 , then call executeSelect to actually confirm that this is true
+     *  - return true if any records were deleted
+     *
+     * getUpdateCount()
+     *  - can be used when we execute any update, delete or insert statement
+     *
+     *
+     * Add a call to deleteRecord() by adding an else block
+     *  - If record was found delete it by calling deleteRecord()
+     *
+     * Running this:
+     *  - Initial SELECT returns Bob Dylan
+     *  - Then we see the generated Delete statement
+     *  - The next SELECT returns no data for Bob Dylan which means we've successfully deleted Bob Dylan
+     *
+     * Update artist_name to delete Elf
+     *
+     * Running this:
+     *  - prints the output from the SELECT record
+     *  - prints delete statement that's generated
+     *  - throws SQLIntegrityConstraintViolationException
+     *      - can't delete a parent row due to a foreign key constraint
+     */
+    private static boolean deleteRecord(Statement statement , String table,
+                                        String columnName, String columnValue) throws SQLException {
+        String query = "DELETE FROM %s WHERE %s = '%s'".formatted(table,columnName,columnValue);
+        System.out.println(query);
+        statement.execute(query);
+        int recordsDeleted = statement.getUpdateCount();
+        if (recordsDeleted > 0)
+            executeSelect(statement,table,columnName,columnValue);
+        return recordsDeleted > 0;
+    }
+
+    /*
+     * Update Function
+     * Copy deleteRecord() above and paste below
+     *  - update to updateRecord()
+     *  - change parameter values / update query / and executeSelect() to
+     *      - updatedColumn and updatedValue respectively
+     *  - Update recordsDeleted to recordsUpdated
+     *
+     * Next,
+     * Add 2 parameters in the () declaration
+     *  - this will identify data used in the where clause
+     *  - add them to the formatted()
+     *      - refers to the data used to create the where clause
+     *
+     * Call this on the main()
+     *  - comment out the deleteRecord()
+     *  - call updateRecord and pass                **************** confusing *****************
+     *      - Statement obj and table name
+     *      - column name and column values
+     *      - where condition data
+     *
+     * Running this:
+     *  - Prints the original data
+     *  - prints the update query
+     *  - prints the updated data
+     */
+
+    private static boolean updateRecord(Statement statement , String table,
+                                        String whereColumn, String whereValue,
+                                        String updatedColumn, String updatedValue) throws SQLException {
+        String query = "UPDATE %s SET %s = '%s' WHERE %s = '%s'".formatted(table,updatedColumn,updatedValue,whereColumn,whereValue);
+        System.out.println(query);
+        statement.execute(query);
+        int recordsUpdated = statement.getUpdateCount();
+        if (recordsUpdated > 0)
+            executeSelect(statement,table,updatedColumn,updatedValue);
+        return recordsUpdated > 0;
+    }
+
+
+    //////////////////////////  INSERT BATCH  RECORDS //////////////////////
+
+    /*
+     * insertArtistAlbum - Insert Batch Records
+     *  - insert record first in the artists table
+     *      - omit ' ' on the %s on the VALUES('%s')
+     *          - use enquoteLiteral() on statement and pass artistName
+     *      - enquoteLiteral()
+     *          - encloses the string in single quotes , as well as escape any quotes contained in the text
+     *          - was added in JDK 9 to the statement interface, as a default ()
+     *  - print insert query out
+     *  - call overloaded version statement.execute() and pass
+     *      - insert query
+     *      - constant on the Statement Interface "RETURN_GENERATED_KEYS"
+     *          - returns the automatically generated ID and stores it in a special result set
+     *      - get the generated key by calling getGeneratedKeys() on statement instance
+     *      - check if the result set has content and
+     *          - retrieve id via getInt() passing the column index
+     *          - otherwise, return -1
+     *
+     *      - insert into albums with the id returned above
+     *      - print insert into album statement out
+     *      - call execute , with query string and RETURN_GENERATED_KEYS passed to it
+     *          - get generated key from the above result set
+     *          - retrieve album id from the result set
+     *
+     *      - Setup an array of songs title
+     *          - using array initializer
+     *
+     *      - construct insert query for songs
+     *      - Loop through the array of songs
+     *          - create a song query each time constructed using the songInsertQuery string
+     *              - statement.enquoteLiteral() escape
+     *          - print insert statement
+     *          - call execute() on each song query
+     *      - Call executeSelect() on albumview which will give us all the related data in 1 single statement
+     *
+     * main()
+     *  - Go to the if() statement
+     *  - Comment out on the 2 statements
+     *      - make a call to insertArtistAlbum() and pass
+     *          - statement obj
+     *          - columnValue as both the artist_name and album name
+     *      - update columnValue to "Bob Dylan" in order to execute the if() clause - since we don't have records for Bob
+     *
+     * Running this:
+     *  - First, our SELECT statement, which prints a table of records, just printed a header row, since Bob Dylan was not found in the mjusic db
+     *  - print generated INSERT statements for both
+     *      - artists,
+     *      - albums WITH artist_id that we got from specifying  RETURN GENERATED KEYS in the execute()
+     *      - series of songs inserts with album_id passed to each of them (used RETURN GENERATED KEYS to make that happen)
+     *  - Finally, call to executeSelect that queries the view confirms all the data was added and correctly setup
+     *
+     *
+     */
+    private static void insertArtistAlbum(Statement statement , String artistName,String albumName) throws SQLException{
+
+        String artistInsertQuery = "INSERT INTO music.artists(artist_name) VALUES (%s)"
+                .formatted(statement.enquoteLiteral(artistName));
+        System.out.println(artistInsertQuery);
+        statement.execute(artistInsertQuery,Statement.RETURN_GENERATED_KEYS);
+
+        ResultSet rs = statement.getGeneratedKeys();
+        int artistId = (rs != null && rs.next()) ? rs.getInt(1): -1;
+
+        String albumInsertQuery = "INSERT INTO music.albums(album_name,artist_id) VALUES(%s , %d)"
+                .formatted(statement.enquoteLiteral(albumName),artistId);
+        System.out.println(albumInsertQuery);
+        statement.execute(albumInsertQuery, Statement.RETURN_GENERATED_KEYS);
+        rs = statement.getGeneratedKeys();
+        int albumId = (rs != null && rs.next()) ? rs.getInt(1): -1;
+
+        String[] songs = new String[]{
+                "You're No Good",
+                "Talkin' New York",
+                "In My Time of Dyin'",
+                "Man of COnstant Sorrow",
+                "Fixin' to Die",
+                "Pretty Peggy-O",
+                "Highway 51 Blues"
+        };
+        String songsInsertQuery = "INSERT INTO music.songs(track_number,song_title,album_id) VALUES(%d ,%s ,%d)";
+
+        for (int i = 0; i < songs.length; i++) {
+            String songQuery = songsInsertQuery.formatted(i + 1 ,statement.enquoteLiteral(songs[i]), albumId);
+            System.out.println(songQuery);
+            statement.execute(songQuery);
+        }
+        executeSelect(statement,"music.albumview","album_name","Bob Dylan");
+    }
+
 }
+
+
+
+
+
+
+
+
