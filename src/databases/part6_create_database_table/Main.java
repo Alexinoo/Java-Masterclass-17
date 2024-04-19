@@ -179,6 +179,7 @@ public class Main {
                 statement.execute(createOrderQuery);
                 System.out.println("Successfully Created Order");
                 statement.execute(createOrderDetailsQuery);
+                System.out.println("Successfully Created Order Details");
             }
         }catch (SQLException e){
             e.printStackTrace();
