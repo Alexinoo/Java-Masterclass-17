@@ -2,10 +2,12 @@ package databases.part8_prepared_statement;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main {
     /* What happens on the server when it receives a request from JDBC Driver?
@@ -103,12 +105,97 @@ public class Main {
      *  - Create addSong
      *      - Copy addArtist() and update effectively
      *
+     *  - Create addDataFromFIle() - loops through the records in the csv file
+     *      - takes a Connection obj
+     *      - Initialize a List<String> records to null
+     *          - read via readAllLines() from Files Class and pass the filename
+     *      - Have a list of records which are comma delimited
+     *          - Initialize lastAlbum to null
+     *          - Initialize lastArtist to null
+     *      - Check the above variables to determine if a new album or new artist is indicated in the file
+     *      - The file has grouped the artist, there's only 1 "Bob Dylan" and it's grouped the 2 album's song
+     *      - Initialize artistId and albumId to -1
+     *      - Set a try with resource block and in the try clause
+     *          - pass prepared statements for each of the insert and return generated keys
+     *          - set AUTOCOMMIT() to false
+     *              - split each record into columns
+     *
+     * Next,
+     *  - Tweek the addSong() to upload songs as Batch data
+     *  - Comment out on the add Song - follow comments
+     *
+     * Advantages of PreparedStatement over the Statement
+     * ..................................................
+     *  - Precompilation
+     *      - Involves parsing , optimizing and storing the SQL statement, in a format that can be efficiently executed by the database server
+     *      - This process only occurs once, making subsequent executions faster
+     *  - Parameterized Queries
+     *      - are supported with placeholders identified by question marks in the SQL string
+     *      - used for dynamic data values and get replaced with actual values at runtime
+     *      - prevents SQL injection attacks, by separating SQL code from user input
+     *  - Efficient Reuse
+     *      - Can be used multiple times, executing the same or similar SQL statements with diff parameter values hence improved performance
+     *  - Automatic Type Conversion
+     *      - handles conversion between Java and SQL data types, ensuring data compatibility
+     *  - Readability and Maintainability
+     *      - easier to read and understand, than looking at a series of concatenated SQL strings with user input,
+     *  - Type Safety
+     *      - provides type safety when binding parameters to SQL statements
+     *      - helps to avoid data type mismatches, that lead to runtime errors or data corruption
+     *
+     *
      *
      */
 
     private static String ARTIST_INSERT = "INSERT INTO music.artists(artist_name) VALUES(?)";
     private static String ALBUM_INSERT = "INSERT INTO music.albums(artist_id,album_name) VALUES(?,?)";
     private static String SONGS_INSERT = "INSERT INTO music.songs(album_id,track_number,song_title) VALUES(?,?,?)";
+
+    private static void addDataFromFile(Connection conn) throws SQLException{
+        List<String> records = null;
+
+        try {
+           records = Files.readAllLines(Path.of("NewAlbums.csv"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String lastAlbum = null;
+        String lastArtist = null;
+
+        int artistId = -1;
+        int albumId = -1;
+
+        try(PreparedStatement psArtist = conn.prepareStatement(ARTIST_INSERT, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement psAlbum = conn.prepareStatement(ALBUM_INSERT,Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement psSong = conn.prepareStatement(SONGS_INSERT,Statement.RETURN_GENERATED_KEYS);
+        ){
+            conn.setAutoCommit(false);
+            for (String record : records){
+                String[] columns = record.split(",");
+                if(lastArtist == null || !lastArtist.equals(columns[0])){
+                    lastArtist = columns[0];
+                    artistId = addArtist(psArtist,conn,lastArtist);
+                }
+                if(lastAlbum == null || !lastAlbum.equals(columns[1])){
+                    lastAlbum = columns[1];
+                    albumId = addAlbum(psAlbum,conn,artistId,lastAlbum);
+                }
+                addSong(psSong,conn,albumId,Integer.parseInt(columns[2]),columns[3]);
+            }
+            int[] inserts = psSong.executeBatch();
+            int totalInserts = Arrays.stream(inserts).sum();
+            System.out.printf("%d song records added %n",inserts.length);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        }catch (SQLException e){
+            conn.rollback();
+            throw new RuntimeException(e);
+        }
+
+
+    }
 
     private static int addArtist(PreparedStatement ps, Connection conn, String artistName) throws SQLException {
         int artistId = -1;
@@ -139,22 +226,32 @@ public class Main {
         return albumId;
     }
 
-    private static int addSong(PreparedStatement ps, Connection conn,int albumId,
+    // USES BATCH INSERT - 1 trip to the database
+    private static void addSong(PreparedStatement ps, Connection conn,int albumId,
                                int trackNo , String songType) throws SQLException {
-        int songId = -1;
         ps.setInt(1,albumId);
         ps.setInt(2,trackNo);
         ps.setString(3,songType);
-        int insertedCount = ps.executeUpdate();
-        if (insertedCount > 0){
-            ResultSet generatedKey = ps.getGeneratedKeys();
-            if (generatedKey.next()){
-                songId = generatedKey.getInt(1);
-                System.out.println("Auto-incremented ID: "+songId);
-            }
-        }
-        return songId;
+        ps.addBatch();
     }
+
+    // DOES NOT UTIlIZE BATCH Concept - 27 trips to the db
+//    private static int addSong(PreparedStatement ps, Connection conn,int albumId,
+//                               int trackNo , String songType) throws SQLException {
+//        int songId = -1;
+//        ps.setInt(1,albumId);
+//        ps.setInt(2,trackNo);
+//        ps.setString(3,songType);
+//        int insertedCount = ps.executeUpdate();
+//        if (insertedCount > 0){
+//            ResultSet generatedKey = ps.getGeneratedKeys();
+//            if (generatedKey.next()){
+//                songId = generatedKey.getInt(1);
+//                System.out.println("Auto-incremented ID: "+songId);
+//            }
+//        }
+//        return songId;
+//    }
 
     public static void main(String[] args) {
 
@@ -171,9 +268,10 @@ public class Main {
 
         try(Connection connection = dataSource.getConnection(System.getenv("MYSQL_USER"),System.getenv("MYSQL_PASS"))){
 
+            addDataFromFile(connection);
             String sql = "SELECT * FROM music.albumview WHERE artist_name = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, "Elf");
+            ps.setString(1, "Bob Dylan");
             ResultSet rs = ps.executeQuery();
 
             printRecords(rs);
