@@ -100,8 +100,30 @@ public class Main {
      *      - pass connection obj and delete order id 1
      *  - Running this
      *      - prints 1 record from order table deleted
-     *      - Because of the CASCADE delete defined in the order detail , no need to delete from order details in java
+     *
+     * Because of the CASCADE delete defined in the order detail , no need to delete from order details in java
      *          - this was optional in this scenario
+     * We can also do this by including this in a transaction which is also a valid solution
+     * Do it that way
+     *  - Comment out on the previous code in deleteOrder()
+     *      - set AUTOCOMMIT to false
+     *      - call commit() as the last statement in the try{}
+     *      - call rollback() in the catch clause - add exception to the () signature
+     *      - add a finally clause
+     *          - set AUTOCOMMIT to true
+     *  - Add the delete query more generic and put a placeholder in for the table name
+     *      - concatenate formatted string with parentQuery and pass "order"
+     *      - concatenate formatted string with childQuery and pass "order_details"
+     *  - Start deleting childQuery
+     *      - print how many child records were deleted
+     *  - Call executeUpdate() and pass the parentQuery to delete parent record
+     *      - check if the no of records deleted is 1
+     *          - if so, commit and print out a successful deletion msg
+     *          - otherwise, rollback
+     *  - Running this:
+     *      - prints 3 records were deleted
+     *      - prints Order 2 was deleted
+     *
      */
 
     private static String USE_SCHEMA = "USE storefront";
@@ -153,13 +175,35 @@ public class Main {
         return orderId;
     }
 
-    private static void deleteOrder(Connection conn, int orderId){
-        String deleteQuery = "DELETE FROM storefront.order WHERE order_id=%d".formatted(orderId);
+    private static void deleteOrder(Connection conn, int orderId) throws SQLException{
+//        String deleteQuery = "DELETE FROM storefront.order WHERE order_id=%d".formatted(orderId);
+//        try(Statement statement = conn.createStatement()){
+//            int deletedRecords = statement.executeUpdate(deleteQuery);
+//            System.out.printf("%d records deleted%n",deletedRecords);
+//        }catch (SQLException e){
+//            throw new RuntimeException(e);
+//        }
+
+        /////////////// Using Transactions //////////////////////
+        String deleteQuery = "DELETE FROM %s WHERE order_id=%d";
+        String parentQuery = deleteQuery.formatted("storefront.order",orderId);
+        String childQuery = deleteQuery.formatted("storefront.order_details",orderId);
         try(Statement statement = conn.createStatement()){
-            int deletedRecords = statement.executeUpdate(deleteQuery);
-            System.out.printf("%d records deleted%n",deletedRecords);
+            conn.setAutoCommit(false);
+            int deletedRecords = statement.executeUpdate(childQuery);
+            System.out.printf("%d child records deleted%n",deletedRecords);
+            deletedRecords = statement.executeUpdate(parentQuery);
+            if (deletedRecords == 1){
+                conn.commit();
+                System.out.printf("Order %d was successfully deleted%n",orderId);
+            }else{
+                conn.rollback();
+            }
         }catch (SQLException e){
+            conn.rollback();
             throw new RuntimeException(e);
+        }finally {
+            conn.setAutoCommit(true);
         }
     }
 
@@ -177,7 +221,7 @@ public class Main {
                 System.out.println("storefront schema does not exist");
                 setUpSchema(connection);
             }
-            deleteOrder(connection,3);
+            deleteOrder(connection,2);
 //            int newOrder = addOrder(connection , new String[]{"shoes","shirt","socks"});
 //            System.out.println("New Order = "+newOrder);
         }catch (SQLException e){
