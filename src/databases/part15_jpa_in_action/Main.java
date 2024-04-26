@@ -150,6 +150,85 @@ public class Main {
      *  - deleted a record with entityManager.remove()
      *  - updating data was done though automatically (if the entity was managed) when the transaction ended with a commit
      *  - We could use merge to use an existing entity with a valid id , to have it managed and persisted, after a manual creation of the entity
+     *
+     *
+     *
+     * ////////// JPA With Related Tables ////////
+     * //////////////////////////////////////////
+     *
+     * Comment out on the update code
+     *  - Find 201 which rep Chemical brothers group
+     *  - Print artist
+     *
+     * Running this:
+     *  - Examining the output, we see that 2 select statements were executed by hibernate
+     *      - the first got the artist record
+     *      - the second get the album records associated with this artist
+     *  - The artist entity is printed out ,
+     *      - Artist 201 is the Chemical brothers and this artist has 2 albums in the data
+     *          - "Push The Button" and actually is a duplicate
+     *
+     * By adding a new annotated Entity for Album, and a field on Artist with a list of these entities , Hibernate was able to properly join the tables
+     *  It returned the results to the Artist and Album instances
+     *
+     * Java Developers do not have to know SQL , or get bogged down in understanding relational db to successfully retrieve data
+     *
+     * Deal with Duplicate Albums
+     * ..........................
+     * Add a () to remove duplicate albums if they have the same name
+     *  - Set the Album Entity to implement Comparable
+     *      - Implement compareTo()
+     *          - compare album names and return the comparison of this instance's album name with that of the () parameter
+     *
+     * Add a () to remove duplicates on the Artist Class
+     *  - Insert after the setter () for artistName
+     *      - Pass albums to a new instance of a TreeSet - This will be ordered and unique by album name
+     *      - Clear the collection and repopulate the list with the elements in the set
+     *
+     * Before Running:
+     *  - Query records from the albums table with id (289,728)
+     *      - Returns a duplicate with both having an artist id of 201
+     *
+     * Back to Main()
+     *  - call removeDuplicates() on the artist Entity
+     *      - Do it after printing the artist details from db
+     *      - Then print it again, after calling removeDuplicates
+     *
+     * Running this:
+     *  - Prints artist before we removed the duplicate as well as after where our list only has album id = 289
+     *  - This statement shows what the entity state was at the time each sout was executed
+     *  - It's not really a confirmation that this is what it looks like in the db
+     *  - Please note an update statement was executed
+     *  - Confirming with the Workbench
+     *      - the album Id 728 still exists but its not associated to an artist because artist_id is null
+     *      - this is called an orphaned record and its a pretty undesirable situation
+     *  - Instead of deleting the album record, it simply updated the artist id to null
+     *      - This is not what we wanted to happen
+     *      - We can change this behavior by including a couple of values on the OneToMany annotation on Artist
+     *          - define some key-value pairs or annotation members
+     *              - set cascade = CascadeType.ALL
+     *              - This means we want new child entities persisted, deleted child entities removed, updates to children persisted and so forth
+     *          - Basically, all changes to parent and child are kept in sync via the entity and it's attributes
+     *          - add orphanRemoval and set it to true
+     *              - instructs the persistence provider to automatically delete child entities , when they become orphaned
+     *      - We really need both of these to be declared for the behavior to be correct in this case
+     *  - Revert the data the way it was before by updating 201 to album id 728
+     *
+     *  - Re-run the code with this change
+     *      - Notice that in addition to the update statement that's shown, there's an additional delete statement,so delete from albums
+     *      - Confirmed with the workbench that the duplicate was removed
+     *
+     *
+     * Next,
+     * Let's now add a New Album
+     *  - Add addAlbum() on the Artist Entity class after the setter for Artist name
+     *      - Takes 1 parameter - album name
+     *      - simply add a new album instance, using the album name in the constructor, adding that to the album's list field
+     *  - On the main()
+     *      - find artist id 202
+     *      - call addAlbum() on the artist and pass the album name
+     *
+     *
      */
 
     public static void main(String[] args) {
@@ -178,11 +257,11 @@ public class Main {
 
 
             ///// Update /////
-             transaction.begin();
-             Artist artist = entityManager.find(Artist.class,202);
-             System.out.println(artist);
-             artist.setArtistName("Muddy Waters");
-             transaction.commit();
+            // transaction.begin();
+            // Artist artist = entityManager.find(Artist.class,202);
+            // System.out.println(artist);
+            // artist.setArtistName("Muddy Waters");
+            // transaction.commit();
 
             //Suppose we don't want to query first ? ///
             // transaction.begin();
@@ -196,6 +275,25 @@ public class Main {
             // System.out.println(artist);
             // entityManager.merge(artist);
             // transaction.commit();
+
+
+            /////  Remove Duplicates /////
+            // transaction.begin();
+            // Artist artist = entityManager.find(Artist.class,201);
+            // System.out.println(artist);
+            // artist.removeDuplicates();
+            // System.out.println(artist);
+            // transaction.commit();
+
+
+            //// add new Album via addAlbum() ////
+             transaction.begin();
+             Artist artist = entityManager.find(Artist.class,202);
+             System.out.println(artist);
+             artist.addAlbum("The best of Muddy Waters");
+             System.out.println(artist);
+             transaction.commit();
+
 
 
 
