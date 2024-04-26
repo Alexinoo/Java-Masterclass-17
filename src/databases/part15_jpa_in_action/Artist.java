@@ -1,4 +1,4 @@
-package databases.part14_intro_jpa_orm;
+package databases.part15_jpa_in_action;
 
 /*
  * Artist
