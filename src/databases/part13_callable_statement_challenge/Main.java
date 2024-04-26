@@ -233,14 +233,15 @@ public class Main {
                     "{CALL storefront.addOrder(?,?,?,?)}"
             );
 
-//            DateTimeFormatter dtf  = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
-            DateTimeFormatter dtf  = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss").withResolverStyle(ResolverStyle.STRICT);
+ //           DateTimeFormatter dtf  = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
+            DateTimeFormatter dtf  = DateTimeFormatter.ofPattern("G yyyy-MM-dd HH:mm:ss").withResolverStyle(ResolverStyle.STRICT);
 
 
          orders.forEach(o -> {
 //             System.out.println(o.getDetailsJson())
              try{
-                 LocalDateTime localDateTime = LocalDateTime.parse(o.dateString(),dtf);
+ //                LocalDateTime localDateTime = LocalDateTime.parse(o.dateString(),dtf);
+                 LocalDateTime localDateTime = LocalDateTime.parse("AD "+o.dateString(),dtf);
                  Timestamp timestamp = Timestamp.valueOf(localDateTime);
                  cs.setTimestamp(1,timestamp);
                  cs.setString(2,o.getDetailsJson());
