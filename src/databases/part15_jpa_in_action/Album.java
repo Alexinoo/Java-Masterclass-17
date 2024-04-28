@@ -3,6 +3,10 @@ package databases.part15_jpa_in_action;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /*
  * Add additional Annotation to the id field
  *  - This is the GeneratedValue annotation which requires a strategy to be specified
@@ -51,6 +55,10 @@ public class Album implements Comparable<Album>{
     @Column(name="album_name")
     private String albumName;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name="album_id")
+    private List<Song> playList = new ArrayList<>();
+
     public Album() {
     }
 
@@ -71,11 +79,22 @@ public class Album implements Comparable<Album>{
         this.albumName = albumName;
     }
 
+    public List<Song> getPlayList() {
+        return playList;
+    }
+
     @Override
     public String toString() {
+        playList.sort(Comparator.comparing(Song::getTrackNumber));
+        StringBuilder sb = new StringBuilder();
+        for (Song s:playList ) {
+            sb.append("\n\t").append(s);
+        }
+        sb.append("\n");
         return "Album{" +
                 "albumId=" + albumId +
                 ", albumName='" + albumName + '\'' +
+                ", songs='" + sb +
                 '}';
     }
 
