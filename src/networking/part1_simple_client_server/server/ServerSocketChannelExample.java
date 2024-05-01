@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServerSocketChannelExample {
 
@@ -111,9 +113,115 @@ public class ServerSocketChannelExample {
      * - We'll look at other solutions, neither of which use threads
      *
      *
+     * //// PART 2 /////////////////
+     * // Polling Socket Channels with a custom Channel Manager /////
+     * We left this code only being able to process 1 request maximum per client
+     * To help us understand what's happening in this code, we'll add a couple of print statements
+     *  - First, before invoking accept() - print waiting to connect to another client
+     *  - Second,before processing client data
      *
+     * Running this:
+     *  - Fire ServerSocketChannelExample.java
+     *      - We can see the server is waiting to connect to another client
+     *      - (in other words , this thread is blocked here, waiting)
+     *  - Fire up 1 simple client process
      *
+     *  - The output from the Server now says connected to client and it's waiting on client request data
+     *    - So now it's blocked on channel.read() statement
+     *  - Type hello in the Simple Client
+     *      - the request is handled properly and hello is echoed back
+     *  - But the server isn't listening for data from this client anymore but rather is waiting for a new client to connect
+     *      - means it's not interacting with this client any longer with the client it's already connected to
      *
+     * That's a problem,
+     * The server socket allowed a timeout period on the accept(), but the server socket channel doen't have that
+     *  functionality
+     * That's because channels have a non blocking mode
+     *  - We can also create a new thread for each client connection and have the thread asynchronously listen in a while
+     *    loop for more request data - That's the approach we took with the multithreaded server
+     *  - If I wrapped all the reading code in a while loop, in this current thread, we'd be in a busy wait loop
+     *  - Instead of blocking, waiting for a new client, i'd be stuck in the loop, but we'd at least be able to handle
+     *    multiple requests from this client
+     *  - But it's not useful for another client trying to connect and make a request
+     *
+     * Shut down both processes and rework this code so that it can rework multiple clients without using threads
+     *
+     * Start by maintaining a list of client socket channels that have connected
+     *  - just a list that will contain socket channels instances and will call this clientList and initialize it to a new
+     *    array list
+     *  - when a client connects, add that client channel to this list after the accept() statement
+     *  - Before we try to process any requests, we'll create a for loop that will loop through my connected client channels
+     *  - Add this after the buffer declaration
+     *      - use traditional for loop and loop from 0 to the size of the client channels list
+     *      - if the client disconnects or the read times out, remove the client channel from the list of the clientList
+     *  - We need to change "clientChannel" variable to be a channel from the client channels
+     *
+     * This code manages multiple clients but would still blocks on accept()
+     * We can make my serverSocketChannel non-blocking
+     *  - We have to do this before you execute any ()s that would normally block
+     *      - so we'll need to include it before we accept the first client
+     *      - we'll add it after the bind statement and call configureBlocking passing false as the arg which is how you
+     *        make a channel non blocking
+     *  - This means the accept(), will no longer block and it returns immediately, either with a new client connection
+     *    or with a null value, meaning no new client connection was identified
+     *  - Because client channel might be null, we need to handle that situation
+     *      - We'll include it in an if statement and add it to the list as long as it's not null
+     *      - close the if block before allocating buffer
+     *  - This code allows this thread to continuously look for connecting clients without blocking
+     *
+     * But it still got a problem,
+     *  - It will block when reading request from an existing client
+     * But fortunately, the client's channel can also be put into non-blocking mode and we'll can do this next
+     *  - call configureBlocking() and set it to false
+     * Then remove the 2 println statements we added before
+     *  - this is because they will print continuously as this loop continually checks for work to do
+     *  - in my case we'll comment this out
+     *
+     * Running this :
+     *  - Fire up the server
+     *
+     *  - Fire up 2 instances of Simple Client
+     *      - First Client
+     *          - Type A: Hello
+     *          - we get an echoed back from the server
+     *
+     *          - Type A: Hello again
+     *          - we get an echoed back from the server
+     *
+     *      - Second Client
+     *          - Type B: Hello
+     *          - we get an echoed back from the server
+     *
+     *          - Type B: Hello again
+     *          - we get an echoed back from the server
+     *
+     * Split the run windows so that we can see all 3 outputs
+     *  - prints we're connected to both clients
+     *
+     *      - Third Client
+     *          - Type C: Hello
+     *          - gets echoed back
+     *
+     *          - Type C: Hello again
+     *          - gets echoed back
+     *
+     *          - Type "exit"
+     *          - get Client Disconnected
+     *              - from server "Connection to *** Lost"
+     *
+     * Finally, type exit on the other 2 clients which also get disconnected as well
+     *
+     * We've now got a server that is capable of processing multiple clients and multiple client requests with a single
+     *  thread.
+     *
+     * This is pretty powerful and why non-blocking IO is being embraced
+     * This solution may not scale well if your requests or responses contain large amounts of data or if you're fielding
+     *  large no of requests
+     * But this non-blocking behavior in combination with multithreading gives you a lot more options and scales much
+     *  better than blocking IO solutions
+     * In this server we've used polling to continually check for new connections and new requests
+     *
+     * We'll write a server using socket channels, but with event driven ()s which the Channel API supports
      *
      */
 
@@ -122,26 +230,40 @@ public class ServerSocketChannelExample {
         try(ServerSocketChannel serverChannel = ServerSocketChannel.open() ){
 
             serverChannel.socket().bind(new InetSocketAddress(5000));
+            serverChannel.configureBlocking(false);
             System.out.println("Server is listening on port "+serverChannel.socket().getLocalPort());
 
-            while (true){
+            List<SocketChannel> clientList = new ArrayList<>();
+
+            while (true) {
+//                System.out.println("Waiting to connect to another client");
                 SocketChannel clientChannel = serverChannel.accept();
-                System.out.printf("Client %s connected%n", clientChannel.socket().getRemoteSocketAddress());
+                if (clientChannel != null) {
+                    clientChannel.configureBlocking(false);
+                    clientList.add(clientChannel);
+                    System.out.printf("Client %s connected%n", clientChannel.socket().getRemoteSocketAddress());
+                }
 
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
-                SocketChannel channel = clientChannel;
-                int storedBytes = channel.read(buffer);
 
-                if (storedBytes > 0){
-                    buffer.flip();
-                    channel.write(ByteBuffer.wrap("Echo from server ".getBytes()));
-                    while (buffer.hasRemaining()){
-                     channel.write(buffer);
+                for (int i = 0; i < clientList.size(); i++) {
+
+                    SocketChannel channel = clientList.get(i);
+//                    System.out.println("Waiting on client request data");
+                    int storedBytes = channel.read(buffer);
+
+                    if (storedBytes > 0) {
+                        buffer.flip();
+                        channel.write(ByteBuffer.wrap("Echo from server ".getBytes()));
+                        while (buffer.hasRemaining()) {
+                            channel.write(buffer);
+                        }
+                        buffer.clear();
+                    } else if (storedBytes == -1) {
+                        System.out.printf("Connection to %s lost%n", channel.socket().getRemoteSocketAddress());
+                        channel.close();
+                        clientList.remove(i);
                     }
-                    buffer.clear();
-                } else if (storedBytes == -1) {
-                    System.out.printf("Connection to %s lost%n",channel.socket().getRemoteSocketAddress());
-                    channel.close();
                 }
             }
 
