@@ -173,7 +173,7 @@ public class UDPPacketServer {
                 }
 
                 try{
-                    TimeUnit.MILLISECONDS.sleep(3);
+                    TimeUnit.MILLISECONDS.sleep(1);
                 }catch (InterruptedException e){
                     throw new RuntimeException(e);
                 }
