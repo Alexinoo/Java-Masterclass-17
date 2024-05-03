@@ -7,6 +7,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.concurrent.TimeUnit;
 
 public class UDPPacketServer {
     /*
@@ -97,10 +103,88 @@ public class UDPPacketServer {
      *
      * Let's look at how we can send packets of this audi file back to the client
      * Then look at how to have the client receive the data incrementally playing it as it's received
+     *
+     *
+     *
+     * ///// audio sharing //////
+     * change this class so that it sends the selected audio data back to the client in datagram packets
+     * Use a private static()
+     * sendDataToClient(String file,DatagramSocket serverSocket)
+     *  - Takes the file name, datagram socket, and the datagram packet that was received from the client
+     *  - open the audio file requested and send it bit by bit in datagram packets to the client
+     * Create ByteBuffer with 1024 as the packet size
+     * Use FileChannel
+     *  - use it to open the audio file by calling open() on FileChannel and pass it a path
+     *      - we can get a path in multiple ways and one of them is calling get() on Paths, passing the filename
+     *          - also need to pass the options, in this case, READ
+     * We can send packets back to the client by getting the client address info & the port from the client packet
+     *  we received earlier
+     * Set up a while loop to read data from the file channel
+     *  - clear the buffer before any write operations are done on it
+     *  - fileChannel.read() will read data from the channel, writing it into the buffer we supply it until it reaches
+     *    the end of the file
+     *      - when it returns -1 and when that happens, will break out of the while loop
+     *      - don't forget that fileChannel.read() actually writes data to the buffer which can be confusing and it's
+     *        important to understand that the channel and buffer are diff entities and that when you call read on the
+     *         channel, you're writing to the buffer you supplied it
+     *  - flip the buffer so tht we can now read the data
+     *  - while there is data in the buffer, create a byte array with the same size as data in the buffer
+     *      - we can read data from the buffer, populating the byte array with the get()
+     *  - Create a Datagram packet for the client, passing it the byte array, it's length and client address info
+     *  - Finally use serverSocket to send it
+     *
+     *  - Before we call this ()
+     *      - we'll add a bit of time between each packet being sent
+     *          - sleep for 22ms , which is the no that worked for Tim's test which allows the client receiving the
+     *            audio to play it seamlessly
+     *          - might need to adjust this in your system , if you experience a lot of noise or audio overlap
+     *  - Call this () from the main()
+     *      - Call sendDataToClient() after decoding the audio file info passing
+     *          - the audioFileName
+     *          - server socket
+     *          - client packet
+     * Handle IOException and print out any err message
+     *
+     *
+     * /////////// Update UDPAudioClient ///////
+     *
+     *
      */
 
     private static final int PORT = 5000;
     private static final int PACKET_SIZE = 5000;
+
+    private static void sendDataToClient(String file, DatagramSocket serverSocket,DatagramPacket clientPacket){
+        ByteBuffer buffer = ByteBuffer.allocate(PACKET_SIZE);
+        try(FileChannel fileChannel = FileChannel.open(Paths.get(file), StandardOpenOption.READ)){
+
+            InetAddress clientIP = clientPacket.getAddress();
+            int clientPort = clientPacket.getPort();
+
+            while (true){
+                if (fileChannel.read(buffer) == -1)
+                    break;
+                buffer.flip();
+                while (buffer.hasRemaining()){
+                    byte[] data = new byte[buffer.remaining()];
+                    buffer.get(data);
+                    DatagramPacket packet = new DatagramPacket( data, data.length,clientIP,clientPort);
+                    serverSocket.send(packet);
+                }
+
+                try{
+                    TimeUnit.MILLISECONDS.sleep(3);
+                }catch (InterruptedException e){
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
 
     public static void main(String[] args) {
 
@@ -121,6 +205,7 @@ public class UDPPacketServer {
             }catch (UnsupportedAudioFileException e){
                 System.out.println(e.getMessage());
             }
+            sendDataToClient(audioFileName,serverSocket,clientPacket);
 
         }catch (IOException e){
             System.out.println(e.getMessage());
