@@ -9,168 +9,75 @@ public class URIBasics {
 
     /* Java's High Level Networking APIs , URI and URL
      * ................................................
-     * We looked at java low level networking APIs which involves ports and sockets
-     * However, most modern apps are only interested in accessing the internet
-     *  - This is easily done using the high-level APIs Java provides
-     * These types abstract networking concepts even further starting with URI
      *
-     * URI, URL , URN
-     * ...............
-     * URI
-     *  - stands for Uniform Resource Identifier
-     *  - Is the broadest category of identifier & it encompasses any resource identifier
+     * - In the last video, we left off taking a URI and making it a URL by calling toURL() on the URI instance
+     * - This () works fine when the URI is absolute, meaning the URI contains all the info needed that a URL would
+     *  require to locate a resource on a network
+     * - Let's take a look at relative URIs next
+     *   - Update tim site , remove scheme and domain
+     *   - Update and print uri in the try-catch
      *
-     * URL
-     *  - stands for Uniform Resource Locator
-     *  - specifically locates resources on a network
-     *  - includes both the name of the resource, and the protocol and address (like domain name and path) needed to
-     *     access it
+     * - Running this:
+     *  - We don't have any problems & we can still get data listed for these URI in the first segment of output,
+     *     though with a lot of null values
      *
-     * URN
-     *  - stands for Uniform Resource Name
-     *  - often used to describe physical items , like a book's isbn number.
+     * - Let's change timSite URI to URL and print it
+     * - Running this:
+     *      - Throws an Illegal arg exception with a msg that URI is not absolute
+     *      - IF a URI is not absolute, then it's relative which is what we have here - a relative URI
      *
-     * The URL and URN are both subsets of a URI
-     * You can think of a URL as a more specific type of a URI
-     * URI strings may contain relative paths , but URLS won't
-     * Java has classes for URI, URL and URLConnection
+     * What's a relative URI ?
+     * ......................
+     * A relative URI is a reference to a resource such as a web page, file, or image that's relative to the current
+     *  context
+     * Relative URIs are commonly used in web development, to specify the location of resources, in relation to the
+     *  location of the current document or web page
+     * The syntax is very similar to that of specifying a relative path, in a file directory system
+     * Hopefully, you recall, a path , if you prefix it with a root drive, or a slash, the root is implied and its an
+     *  absolute path
+     * However, if you omit the initial slash, the path is relative to the cwd
+     * Relative URI's are a similar concept
+     *  - The syntax is similar including the use of a
+     *      - single dot (.) to indicate the current location
+     *      - two dot (.) to specify the parent location
+     * Officially though, a relative URI, is not a URL and we can't use toURL() on this
+     * You can't get an absolute URL from a relative URI because there isn't enough info in the URI to determine the
+     *  absolute location of the resource
+     * When you want to access a resource, you'll use a URL
+     * At that point, the location of the resource has to be absolute, otherwise the java runtime won't have enough info
+     *  to access it
+     * There'll be times when you want to use relative URIs, but usually, you'll use them a long with a base URI
+     * So, the base URI will specify the root of the relative path, which can be quite handy
+     * If you're accessing lots of pages in a website, instead of working with absolute URI's, its probably better to
+     *  have a base URI that contains the host info and relative URIs that don't
+     * Therefore in that scenario, if the host location changes , you only have to update the base URI
+     *  - Let's say for example , the host is located in http://example.com but later it changes to http://example.org
+     *  - If you've used absolute URIs throughout your code, you'll have to go through your code and change each and every
+     *    URI instance
+     * But if you've used relative URIs with a base URI, then you really only have to change 1 instance of the base URI
+     * So let's add the base URI for our relative URI
      *
-     * URL Class
-     * ..........
-     *  - represents a URL, which Java describes as a pointer to a resource, in the World Wide Web
-     *      - a resource can be something simple like a file or directory
-     *      - or can be a reference to a more complicated obj, such as a query to a db, or search engine
-     *
-     * URI Class
-     * .........
-     *  - is made up of a hierarchical parts
-     *      - At the to level, the format is shown as follows, consisting of a scheme, scheme-specific-part, and a fragment
-     *          [scheme:]scheme-specific-parts[#fragment]
-     *      - The scheme-specific-part consists of an authority, a path, and query as shown
-     *          [//authority][path][?query]
-     *      - The authority may consist of user-info, and a host and port in the following format
-     *          [user-info@][host][:port]
-     *  - In total, there are 9 components in the hierarchy, some of which are optional as listed below
-     *      - refer from the slide
-     *
-     * URL to URI
-     * ..........
-     *  - Although a URI is a super set of URL, this isn't true in Java's class hierarchy
-     *      - URL is not a subclass of URI
-     *  - If you want to use a URI as a URL, you can use toURL on a URI instance
-     *  - Similarly, if you want to use a URL as a URI, you use toURI on a URL instance
-     *  - However, not all URIs are URLs, and this transformation may result in an exception
-     *
-     * Implementations
-     * ...............
-     *
-     * Add a print(URI uri)
-     * Print the component parts in a hierarchy
-     * use printf and pass a text block as a formatted string
-     *  - proper indentation to understand how all the components fit into the URI string
-     * print the highest level's components as a header
-     *  - Scheme is one of the outermost components - a stand alone component
-     *  - Scheme-specific-part - is a composite part
-     *      - First component is authority which in turn is composite
-     *          - consists of user info, host and the port
-     *      - Second component is the path
-     *      - Third component is query
-     *  - Fragment is an optional component that starts with a # sign
-     * All the components can be retrieved by their getter ()s
-     *
-     * main()
-     * Create a URI variable
-     * There are 2 ways to do this
-     *  - Call create() on URL class and pass a string literal
-     *      - doesn't throw an exception
-     *
-     * call print() and pass the uri
-     *  - "https://learnprogramming.academy/"
+     * Add it as the first line of code in the main()
+     *  - Call it baseSite and call create() on URI class, passing it the base URI for Tim's website
+     *  - Whenever we need to use my relative URI as a URL, we can resolve it to an absolute URI using the base
+     *      - use this directly where we call timSite.toURL()
      *
      * Running this:
-     *  - Prints the data for all 9 components
-     *      - Scheme as : https
-     *      - Scheme-specific-part as : //learnprogramming.academy/
-     *      - Authority : learnprogramming.academy
-     *      - User info : null
-     *      - Host : learnprogramming.academy
-     *      - Port : -1 (returns an int in this case -1 if not defined)
-     *      - Path : /
-     *      - Query: null
-     *      - Fragment: null
+     *  - The code executes without any errors
+     *  - We get the fully qualified path printed and the URL fields after that
      *
-     * Update URI by adding some additional text to the string we supplied
-     *  - "https://learnprogramming.academy/courses/complete-java-masterclass"
+     * Now that we've got the URL, we can use it to communicate with the resource at that location
+     * In many cases, that will be a web page
      *
-     *  - Prints the data for all 9 components
-     *      - Scheme as : https
-     *      - Scheme-specific-part as : //learnprogramming.academy/courses/complete-java-masterclass
-     *      - Authority : learnprogramming.academy
-     *      - User info : null
-     *      - Host : learnprogramming.academy
-     *      - Port : -1 (returns an int in this case -1 if not defined)
-     *      - Path : /complete-java-masterclass
-     *      - Query: null
-     *      - Fragment: null
+     * Create a new class - WebContent with a main()
      *
-     * Let's try another kind of URI
-     *  - Instead of using URI.create() , use a constructor, new URI()
-     *  - throws a checked exception,  URISyntaxException
-     *      - surround with a try catch
-     *  - call print() on this URI
-     *      - "http://user:pw@store.com:5000/products/phones?os=android#samsung"
      *
-     * Running this:
-     *
-     * - Prints the data for all 9 components
-     *  - All components are now defined
-     *      - Scheme as : https
-     *      - Scheme-specific-part as : //user:pw@store.com:5000/products/phones?os=android
-     *      - Authority : user:pw@store.com:5000
-     *      - User info : user:pw
-     *      - Host : store.com
-     *      - Port : 5000
-     *      - Path : /products/phones
-     *      - Query: os=android
-     *      - Fragment: samsung
-     *
-     * We used a fake url , like it's not a real url and doesn't exist
-     * You can create a URL instance with an invalid identifier, similar to creating a Path with an invalid file
-     *  directory, as long as it is syntactically correct
-     * So those are the basics of a URI
-     *
-     * Next,
-     * Turn URI into URL
-     *  - call toURL() on one of the my URI instance
-     * Add this inside the try block
-     *  - create a URL variable called url and assign that the result we get from uri.toURL()
-     *      - toURL() throws a checked exception - MalformedURLException - add it to catch block
-     *  - print the result out
-     *
-     *  - Running this again:
-     *      - prints the URL's string which is exactly the same as the URI's string
-     *
-     * Next,
-     *  - Copy the entire print() and paste a copy directly below
-     *      - change the parameter from URI to URL
-     *      - Notice that 3 getters that were on the URI class aren't valid for the URL class
-     *          - e.g. getScheme() , getSchemeSpecificPart() and getFragment()
-     *          - is because a url is a type that's specifically geared towards locating resources on the internet
-     *      - Remove these getter ()s that are not applicable to URL as well as the headers
-     *
-     *  - main()
-     *      - use timSite instead, to print learnprogramming.academy website
-     *      - call print() on this
-     *
-     *  - Running this:
-     *      - prints Authority and its subcomponents as well as the path
-     *      - query is null in this case
      *
      */
 
     public static void main(String[] args) {
-//        URI timSite = URI.create("https://learnprogramming.academy/");
-        URI timSite = URI.create("https://learnprogramming.academy/courses/complete-java-masterclass");
+        URI baseSite = URI.create("https://learnprogramming.academy/");
+        URI timSite = URI.create("courses/complete-java-masterclass");
         print(timSite);
 
         try {
@@ -178,10 +85,13 @@ public class URIBasics {
             print(uri);
 
             URL url = uri.toURL();
-            System.out.println(url);
+            print(url);
 
-            URL timSiteUrl = timSite.toURL();
-            print(timSiteUrl);
+            //URL timSiteurl = timSite.toURL();
+            URI masterClassUrl = baseSite.resolve(timSite);
+            URL timSiteurl = masterClassUrl.toURL();
+            print(timSiteurl);
+            System.out.println(timSiteurl);
         } catch (URISyntaxException | MalformedURLException e) {
             throw new RuntimeException(e);
         }
