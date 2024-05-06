@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -146,6 +148,10 @@ public class SimpleHttpServer {
      *      - If you want to send data from a client to an HttpServer, there a re a couple of more steps that have to take place
      *
      *
+     * Running this:
+     *  -
+     *
+     *
      */
 
     private static long visitorCounter = 0;
@@ -161,8 +167,14 @@ public class SimpleHttpServer {
                 String data = new String(exchange.getRequestBody().readAllBytes());
                 System.out.println("Body data: "+data);
 
+                Map<String,String> parameters = parseParameters(data);
+                System.out.println(parameters);
+
                 if (requestMethod.equals("POST"))
                     visitorCounter++;
+
+                String firstName = parameters.get("first");
+                String lastName = parameters.get("last");
 
                 String response = """
                         <html>
@@ -170,11 +182,21 @@ public class SimpleHttpServer {
                              <h1>Hello World from My Http Server</h1>
                              <p>Number of visitors who signed up = %d</p>
                              <form method="post">
+                              <label for="first"> First Name:  </label>
+                              <input type="text" id="first" name="first" value="%s" />
+                              <br/>
+                              
+                               <label for="last"> Last Name:  </label>
+                              <input type="text" id="last" name="last" value="%s" />
+                              <br/>
+                              
                               <input type="submit" value="Submit" />
                              </form>
                           </body>
                         </html>
-                        """.formatted(visitorCounter);
+                        """.formatted(visitorCounter,
+                        firstName == null ? "": firstName,
+                        lastName == null ? "": lastName);
                 var bytes = response.getBytes();
                 exchange.sendResponseHeaders(HTTP_OK, bytes.length);
                 exchange.getResponseBody().write(bytes);
@@ -187,5 +209,16 @@ public class SimpleHttpServer {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private static Map<String,String> parseParameters(String requestBody){
+        Map<String,String> parameters = new HashMap<>();
+        String[] pairs = requestBody.split("&");
+        for (String pair : pairs){
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2)
+                parameters.put(keyValue[0], keyValue[1] );
+        }
+        return parameters;
     }
 }
