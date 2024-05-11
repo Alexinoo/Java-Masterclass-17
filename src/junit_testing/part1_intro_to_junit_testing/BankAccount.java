@@ -75,10 +75,16 @@ public class BankAccount {
     private String lastName;
     private double balance;
 
-    public BankAccount(String firstName, String lastName, double balance) {
+    public static final int CURRENT = 1;
+    public static final int SAVINGS = 2;
+
+    private int accountType;
+
+    public BankAccount(String firstName, String lastName, double balance, int typeOfAcc) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.balance = balance;
+        this.accountType = typeOfAcc;
     }
 
     /*
@@ -102,4 +108,10 @@ public class BankAccount {
     public double getBalance() {
         return balance;
     }
+
+    public boolean isCurrent(){
+        return accountType == CURRENT;
+    }
+
+
 }
