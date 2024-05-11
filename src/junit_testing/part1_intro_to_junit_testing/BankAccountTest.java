@@ -163,23 +163,185 @@ import static org.junit.Assert.*;
  *          - throws an assertion error, meaning that our test has failed with the message that we passed
  *      - We can also change the account from the constructor and test again, should do the same thing
  *
+ *
+ *
+ *
+ * More Asserts and Exception Handling
+ * ...................................
+ * There are other Junit assertion methods
+ *  - assertNotEquals()
+ *      - Used when we don't want the actual value to be equal to a specific value
+ *
+ *  - assertArrayEquals()
+ *      - Used when we want to verify the value of an array
+ *      - assertEquals() won't work with arrays unless they are of the same instance
+ *      - considers 2 arrays are equal only when
+ *          - the lengths of the 2 arrays is the same
+ *          - every element in both arrays is the same and in the same order
+ *
+ *  - assertNull() & assertNotNull()
+ *      - used to asset null values
+ *      - we can also use assertEquals to check for null, but as with assertTrue() and assertFalse(), using
+ *          these 2 ()s makes the intention clearer, and we only have to pass the actual value in the method
+ *
+ *  - assertSame() & assertNotSame()
+ *      - Used when we want to check whether 2 instances are the exact same instance
+ *      - Remember, the assertEquals() uses the equal() to test for equality
+ *      - assertSame() compares the obj references
+ *
+ *  - assertThat()
+ *      - compares the actual value against a matcher (not the Matcher in the JDK, but a JUnit matcher class)
+ *      - It is more powerful than the other assert ()s , since we can compare the actual value against a range of
+ *        values
+ *      - This () became available in JUnit4.4
+ *
+ * Next,
+ * - Let's look at other annotations
+ * - Note that we are starting each test afresh and each test is independent of each other test
+ * - We're creating a bank account instance at the beginning of each and every test
+ * - We are using the same values rather for the bank account in every test
+ * - Instead of writing same line of code in each test, we can use a () that has the @Before annotation
+ *
+ * - The method with the @Before annotation is run before every test
+ *      - We'll change our code to use a setup()
+ *      - So we'll remove the creation of a bank instance ()s from our test ()s
+ *      - Instead we'll have an instance variable called account in this class
+ *          private BankAccount account;
+ *      - Then the setup () will create the instance and set the instance variable & also print some msg
+ *          account =  new BankAccount("Alex","Mwangi",1000.00, BankAccount.CURRENT);
+ *
+ *  - Next,
+ *      - We'll remove the creation of the account because we don't need that anymore
+ *      - In my case, I will comment it out
+ *
+ *
+ * @org.junit.Before
+ *  - Tells the Junit framework to run the setup() every time we run a test
+ *
+ * Running this:
+ *  - We get the same results
+ *  - "Running a test" is printed in all the 5 instances since the setup() is executed each time a () is tested prior
+ *    to that test being executed
+ *
+ *
+ * Suppose, we want to perform some setup code before the tests, but we only want the setup code to be run only once
+ *  - In other words , we don't want to run it after every test
+ *  - An example of this is when we want to read data that all the tests will use from a database or file, or
+ *    perhaps, we may want to open a network socket, or do some other setups that we really want to do once, once per
+ *    run instead of once per () invocation
+ * In this scenario, we would use org.junit.BeforeClass annotation and then use org.junit.AfterClass to run the
+ *  clean-up code
+ *
+ * @BeforeClass
+ *  - runs before any of the test cases in the test class
+ *
+ * @AfterClass
+ *  - runs after all the test cases in the test class have completed
+ *
+ * In this case, the methods have to be declared as public static ()s and must return void which is a little bit different
+ *  to how we set up the other classes
+ *  - Setting up both classes
+ *      - @org.junit.BeforeClass is normally set at the top of the class,
+ *      - @org.junit.AfterClass is normally set at the bottom of the class,
+ *  - The name of the () here can be anything and we're not restricted to beforeClass or afterClass
+ *      - The annotation is what Junit is using to determine whether to run the () at the start of the test ()s or at the end
+ *
+ *  - Running this:
+ *      - We can see the messages executed in the order that we have described
+ *          - beforeClass() is executed first
+ *          - afterClass() is executed as the last ()
+ *
+ *  - Let's add a static int variable to our class and also a () that we're going to annotate with addAfter
+ *      - Each time a () in a class runs, we're going to print out a value of that variable incrementing it by 1
+ *      - This will help us to understand the true test of then these ()s are being executed
+ *  - Will add this variable in
+ *      - beforeClass()
+ *
+ *  - Then define  @org.junit.After class
+ *      - executed after each unit test is tested, similar way like before was executed before executing any tests
+ *
+ * - Running this:
+ *      - Initial count - from beforeClass is 0
+ *      - Final count - from afterClass is 6
+ *
+ *  - This means that even though the output might show in a diff order, the ()s are run in the order we've specified
+ *
+ * ///
+ * Next,
+ *  - Lets add the code in our withdraw() in the BankAccount class
+ *      - we're not using the branch parameter
+ *  - Suppose this bank doesn't allow it's customers to withdraw more than 500$ from an atm
+ *      - If the customer tries to withdraw more than 500, and they are not using a teller at the branch, we need to
+ *         throw an illegal argument exception
+ *      - So let's add that condition and later test it here
+ *  - Call withdraw and pass 600.00 and true
+ *      - means we're withdrawing 600 from the branch
+ *
+ *  - Running this:
+ *      - Now all our tests have actually passed
+ *
+ * Let's change the name from withdraw to withdraw_branch and let's create another one for withdrawing on ATM
+ *  - In my case, I will comment the original withdraw()
+ *  - Then update to withdraw_branch - passing 600.00 and true as the 2nd parameter
+ *  - Then update to withdraw_atm - passing 600.00 and false as the 2nd parameter
+ *
+ * Running this:
+ *  - we get an IllegalArgumentException from withdraw_atm which is to be expected because the amount that we're
+ *    trying to withdraw from the ATM exceeded the value that we specified in BankAccount.java in the withdraw()
+ *
+ *  - But the problem here though, is that the test actually passed, in other words, we want the () to throw an
+ *    IllegalArgumentException when branch is false , and the amount > 500
+ *      - So how do we handle this to correctly indicate that the test has passed
+ *          - In this scenario where we are expecting an exception to be thrown, we need to make a modification to the annotation
+ *              and pass the exception that we're expecting to the annotation as follows
+ *                  @org.junit.Test(expected = IllegalArgumentException.class)
+ *
+ *  - Running this:
+ *      - Now all our tests passed because we've told the () to expect an illegal arg exception
+ *      - We no longer see the exception and all our tests passed and working properly
  */
 
 public class BankAccountTest {
+    private BankAccount account;
+    private static int count;
+    @org.junit.BeforeClass
+    public static void beforeClass(){
+        System.out.println("This executes before any test cases. Initial Count = "+ count++);
+    }
+
+    @org.junit.Before
+    public void setup(){
+      account =  new BankAccount("Alex","Mwangi",1000.00, BankAccount.CURRENT);
+      System.out.println("Running a test");
+    }
+
     @org.junit.Test
     public void deposit() {
        // fail("This test has yet to be implemented");
-        BankAccount account = new BankAccount("Alex","Mwangi",1000.00, BankAccount.CURRENT);
+       //  BankAccount account = new BankAccount("Alex","Mwangi",1000.00, BankAccount.CURRENT);
         double balance = account.deposit(200.00, true);
         assertEquals(1200.00,balance,0);
         //assertEquals(1200.00,account.getBalance(),0);
     }
 
+//    @org.junit.Test
+//    public void withdraw() {
+//        //fail("This test has yet to be implemented");
+//        double balance = account.withdraw(600.00, true);
+//        assertEquals(400.00,balance,0);
+//    }
+
     @org.junit.Test
-    public void withdraw() {
-        fail("This test has yet to be implemented");
+    public void withdraw_branch() {
+        double balance = account.withdraw(600.00, true);
+        assertEquals(400.00,balance,0);
     }
 
+    @org.junit.Test(expected = IllegalArgumentException.class)
+    public void withdraw_atm() {
+        double balance = account.withdraw(600.00, false);
+        assertEquals(400.00,balance,0);
+    }
 //    @org.junit.Test
 //    public void getBalance() {
 //        //fail("This test has yet to be implemented");
@@ -191,29 +353,41 @@ public class BankAccountTest {
     @org.junit.Test
     public void getBalance_deposit() {
         //fail("This test has yet to be implemented");
-        BankAccount account = new BankAccount("Alex","Mwangi",1000.00, BankAccount.CURRENT);
+        //BankAccount account = new BankAccount("Alex","Mwangi",1000.00, BankAccount.CURRENT);
         account.deposit(200.00, true);
         assertEquals(1200.00,account.getBalance(),0);
     }
     @org.junit.Test
     public void getBalance_withdraw() {
         //fail("This test has yet to be implemented");
-        BankAccount account = new BankAccount("Alex","Mwangi",1000.00,BankAccount.CURRENT);
+        //BankAccount account = new BankAccount("Alex","Mwangi",1000.00,BankAccount.CURRENT);
         account.withdraw(200.00, true);
         assertEquals(800.00,account.getBalance(),0);
     }
 
     @org.junit.Test
     public void isCurrent_true() {
-        BankAccount account = new BankAccount("Alex","Mwangi",1000.00,BankAccount.CURRENT);
+        //BankAccount account = new BankAccount("Alex","Mwangi",1000.00,BankAccount.CURRENT);
         //assertEquals(false,account.isCurrent());
        // assertEquals(true,account.isCurrent());
        // assertFalse("The account is not a current account",account.isCurrent());
         assertTrue(account.isCurrent());
     }
 
+    @org.junit.After
+    public void tearDown(){
+        System.out.println("Count after the above test is done (tearDown) = "+count++);
+    }
+
+
+    @org.junit.AfterClass
+    public static void afterClass(){
+        System.out.println("This executes after all test cases. Final Count = "+ count++);
+    }
+
 //    @org.junit.Test
 //    public void dummyTest(){
 //        assertEquals(20,21);
 //    }
+
 }
