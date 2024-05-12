@@ -299,6 +299,39 @@ import static org.junit.Assert.*;
  *  - Running this:
  *      - Now all our tests passed because we've told the () to expect an illegal arg exception
  *      - We no longer see the exception and all our tests passed and working properly
+ *
+ *
+ *
+ *
+ * ///////// Parameterized Testing /////////////
+ * We can further optimize this () a little bit more
+ * If we're expecting an exception to be thrown. we didn't have to modify the annotation as we did for withdraw_atm
+ *  - We can also remove the assertEquals as well, since we're not testing for equality
+ *  - We're just testing to see whether the exceptions are thrown in case of an invalid input
+ *      - so I will comment that line out in my case and remove the local variable as we don't need it anymore
+ *  - Running this:
+ *      - All the tests passed
+ *
+ * Note that annotations were only introduced in JUnit4
+ *  - When using earlier units of all versions of JUnit, What we'd have to do is to surround the code that would
+ *    throw an exception with a try catch block & we wouldn't do anything in the catch {}
+ *  - Remember that if you don't assert anything, the test will pass
+ *      - and so in that case we do the following in the earlier versions
+ *  - I have added withdraw_use_try_catch() test this scenario instead of updating withdraw_atm()
+ *  - Running this:
+ *      - We get the same results - we've caught that exception because we're expecting it and we don't need to do any
+ *        processing in the () because we've caught that exception
+ *  - We can also add a fail(String str)
+ *      - is more explicit on what should happen
+ *
+ *
+ * /// Parameterized Tests
+ *  - We want every test to start afresh but that can result in a repetitive code
+ *  - Suppose , we want to try depositing 5 different amounts, and verifying the resulting balance
+ *      - We could write 5 diff test cases, but we could also write a parameterized test
+ *  - We have to use a class annotation to run parameterized tests
+ *      - Create a new class for this and call it BankAccountTestParameterized
+ *
  */
 
 public class BankAccountTest {
@@ -337,10 +370,20 @@ public class BankAccountTest {
         assertEquals(400.00,balance,0);
     }
 
-    @org.junit.Test(expected = IllegalArgumentException.class)
+    @org.junit.Test (expected = IllegalArgumentException.class)
     public void withdraw_atm() {
-        double balance = account.withdraw(600.00, false);
-        assertEquals(400.00,balance,0);
+        account.withdraw(600.00, false);
+        //double balance = account.withdraw(600.00, false);
+        //assertEquals(400.00,balance,0);
+    }
+
+    @org.junit.Test
+    public void withdraw_use_try_catch() {
+        try{
+            account.withdraw(600.00, false);
+        }catch (IllegalArgumentException e){
+
+        }
     }
 //    @org.junit.Test
 //    public void getBalance() {
