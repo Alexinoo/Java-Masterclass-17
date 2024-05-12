@@ -25,5 +25,48 @@ public class ChallengeDescription {
      *   - Once that test passes, add a test for the second input/output pair
      *   - To keep things simple, you can add the same test method, but if you want to strict about it, you can create
      *     another method
+     *
+     * Challenge #3
+     * ............
+     * - Come up with 2 more tests for the removePairs()
+     *   - Come up with 2 more tests that don't test the same functionality as the existing tests
+     *      - Take a look at the code and see if you can think of another string we should pass to test a specific part
+     *        of the code
+     *   - There's also another special input value that we'd want to test, and which reveal another bug in our code
+     *      - You don't have to write the tests, just think of what the inputs and the expected outputs would be
+     *
+     * Challenge #4
+     * ............
+     * - Add a test for the everyNthChar()
+     *      - Write a test for the everyNthChar() that tests the following scenario
+     *          Input: char array containing the letters 'h','e','l','l','o', in that order, and n = 2
+     *          Output: char array containing the letters 'e','l'
+     *
+     * Challenge #5
+     * ............
+     * - Add a test for the case when n is greater than the length of the array
+     *      - Write a test that tests the case when the value of n is greater than the length of the string
+     *      - You can add a new test case, or add the test to the existing test case
+     *
+     * Challenge #6
+     * ............
+     * - Add tests for the nullIfOddLength()
+     *      - Write 2 tests for the nullIfOddLength().
+     *      - Include both tests in the nullIfOddLength()
+     *      - In 1 test, pass a String that has an even length, and in the second test , pass a String that has an
+     *        odd length
+     *
+     * Challenge #7
+     * ............
+     * - Add a test for the converter()
+     *      - Test the converter() with the following output
+     *          Input: a=10 , b=5
+     *          Output: 300
      */
+
+    public static void main(String[] args) {
+        Utilities utils = new Utilities();
+        System.out.println(utils.everyNthChar(new char[] {'h','e','l','l','o'}, 9));
+
+    }
 }

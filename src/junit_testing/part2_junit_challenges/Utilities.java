@@ -33,10 +33,11 @@ public class Utilities {
      *  "ABCBDEEF" -> "ABCBDEF" (The 2 B's aren't next to each other & so they aren't removed)
      *
      * If length is less than 2, there won't be any pairs, return source
+     * Test for an empty string
      */
 
     public String removePairs(String source){
-        if (source.length() < 2)
+        if (source == null || source.length() < 2)
             return source;
         StringBuilder sb = new StringBuilder();
         char[] string = source.toCharArray(); // ['A','B','B','C','D','E','E','F']
@@ -51,6 +52,9 @@ public class Utilities {
 
     /*
      * Perform a conversion based on some arbitrary internal business rules
+     * Input: a=10 , b=5
+     * Output: 300
+     * (10 / 5) + (10 * 300) - 2
      */
     public int converter(int a , int b){
         return (a/b) + (a * 30) - 2;
