@@ -62,6 +62,36 @@ public class ChallengeDescription {
      *      - Test the converter() with the following output
      *          Input: a=10 , b=5
      *          Output: 300
+     *
+     * Challenge #8
+     * ............
+     * - Write another test for the converter()
+     *      - Test a division by 0 scenario
+     *          Input: a=10, b=0
+     *          Output: ArithmeticException (divide by 0)
+     *
+     * Challenge #9
+     * ............
+     *  - Reduce repetition
+     *      - Every one of the test cases starts by creating an instance of the Utilities class
+     *      - Modify the UtilitiesTest class so that it doesn't have the repetitive code
+     *
+     * Challenge #10
+     * .............
+     *  - Test the following 5 scenarios with the removePairs()
+     *      - Test the following inputs and outputs
+     *      - You could add all these tests to the existing test (), or write a () for each set of input/output
+     *         , though that wouldn't be the best way to do this
+     *
+     *  - Do it in such a way that you only have to write 1 test ()
+     *  - Hint:
+     *      - Create a new class that's using a particular Junit annotation
+     *          Input:"ABCDEFF", Output = "ABCDEF"
+     *          Input:"AB88EFFG", Output = "AB8EFG"
+     *          Input:"112233445566", Output = "123456"
+     *          Input:"ZYZQQB", Output = "ZYZQB"
+     *          Input:"A", Output = "A"
+     *
      */
 
     public static void main(String[] args) {
