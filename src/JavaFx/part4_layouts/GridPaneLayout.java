@@ -130,6 +130,34 @@ public class GridPaneLayout {
      * Comment out the column constraints to revert back to default layout we had before
      *
      *
+     * Let's also look at the alignment
+     *  - At the moment we've set it to center, and obviously it was centered in the middle of the entire window
+     *  - Let's change that and update it to top_center , this sets it up at the top of the screen and its still centered
+     *      - However, by doing that, there is no gap at the top part of the window, where the actual cols/rows start
+     *      - To solve this we add a padding element to the GridPane itself and within that we add an Inset child element
+     *        to the Padding element
+     *          - We set the top property of Inset element to some pixels depending on where we want our gap to appear
+     *
+     * Let's now to move the 4th button to the 4th row
+     *  - set GridPane.rowIndex to 3
+     *  -We don't need to set elements in a certain order with GridPane
+     *      e.g row 0, row 1, row 2, row 3, row 4
+     *  - You can put them in any order as well as the column indexes as well
+     *
+     * Children can also span across multiple rows
+     *  - We need to set the GridPane.rowSpan property to do that
+     *      - We do that on the actual button itself
+     *          - Running this, we can see that it's now taking 2 cols
+     *      - Now we can change the column index to 0, so that it starts in the very 1st col
+     *
+     * We can also change the alignment of each button
+     *  - All aligned to the left, let's change button One to align itself to the right
+     *  - We use the GridPane.halignment property to do that and pass LEFT/RIGHT/CENTER
+     *  - Aligns it to the right within the that cell
+     *
+     * There also a valignment that lets us control vertical alignment within a cell
+     *
+     *
      *
      *
      */
