@@ -233,9 +233,36 @@ public class Main {
      * ..................
      * This element is very handy for calendars and some sort of any application that uses a date
      * Let's add it at row-3, col-1
-     * The date selected may look a little bit differently depending on how your dates are in ypur part of the world
-     *  - In Kenya, we always use d/m/y but you can have a diff one also depending on how you've set your dates on your
+     * The date selected may look a little bit differently depending on how your dates are in your part of the world
+     *  - In Kenya, we always use d/m/Y but you can have a diff one also depending on how you've set your dates on your
      * computer
+     *
+     * TitledPane
+     * ..........
+     * This is a pane with a title as the name suggests
+     * This might be confusing because the name ends with a pane , and it's not actually a layout but rather a control
+     * Let's add 1 to our grid at row-3, col-2 and see how it looks like
+     *  - Add a label as well
+     * TitledPane toggles the contents enclosed within .i.e we can open or hide the content and this can be very useful
+     *  depending on the application you're creating
+     * We can't use it alone, we can add to it an accordion control
+     * Accordion Control
+     *  - Is a group of tiled panes and only 1 pane is allowed to be open at a time
+     *
+     * Let's add 2 more titled pane and put them inside an accordion
+     * We will wrap the TitledPane withing an accordion element
+     *  - Then add panes tag
+     *  - Copy and paste the TitledPane in between the panes tag
+     *      - Add 2 more TitledPane(s)
+     * Now we've got 3 of them and we can sort of open 1 at a time which then in turn closes the other ones automatically
+     *
+     * Next, we can set 1 of the TitledPane to be sort of opened by default when the UI loads/open
+     *  - We need to assign an id to the pane that we want extended and then have the accordion expanded property set
+     *    to that id
+     *  - So let's extend the 3rd one
+     *      - We'll assign an id to that with fx:id attribute and sort of reference the id from the accordion with expanded
+     *        property and append the name with a $ sign
+     * Titled Pane 3 is now open by default when we run the application
      *
      */
 }
