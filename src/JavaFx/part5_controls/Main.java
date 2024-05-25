@@ -187,5 +187,55 @@ public class Main {
      * Also, we can use a cell factory with a Combo box
      *
      *
+     * Slider Control
+     * ..............
+     * Used when we want the user to provide a numeric value
+     * Consists of a track and a thumb that the user can drag
+     * Let's add a Slider element in 2,0 with a column span of 4
+     *  - We set a range for the numeric values using min and max properties
+     *  - We add showTickLabels property & set it to true
+     *      - this displays the range of numbers that we can drag to
+     *  - We add marks to the slider by setting showTickMarks equal to true
+     *      - this makes it easy for a user to select values at ease
+     *  - Though still not really helpful since it's not easy to set the value to exactly 60
+     *  - We can set more tick marks by setting the minor tick property or tick count property
+     *      - It allows us to specify how many tick marks we need between any 2 major ticks
+     *      - Right now we can only see 3 minor ticks between 2 major ticks
+     *      - The major ticks are set with an increment of 25 but we want to divide the area between major tick marks
+     *         into 5 pieces
+     *          - Set Minor tick count to 4
+     *  - We can set the snapToTicks property and set it to true to accurately snap the newest tick mark  no matter where
+     *    the user let the thumb go
+     *      - Snaps the nearest either before or after it
+     *  - We can also set the alignment of a slider to vertical  using the alignment property
+     *
+     * Spinner Control
+     * ...............
+     * Is a newer control that was added in java 8 u40.. sort of subversion 40 of java 8
+     * If you're running an earlier version of java , you won't have the spinner control so 8u40 or higher
+     * Use Spinner element and place it under 2,4
+     * We can also set the min and max values as well
+     * We can set the editable property to true to enable us type the value of our choice
+     * The user needs to type enter to actually sort of confirm the value that they want
+     * If they don't do that the spinner is going to be set to the prev value
+     * Another thing we can do with the spinner is set some sort of starting value with initialValue property
+     *
+     * Color Picker Control
+     * ....................
+     * We use ColorPicker element to add a color palette to the scene graph
+     * Let's add it at row-3, col-0
+     * Appears as a drop down with a color palette, with a range of different colors that we can chose from
+     * We can also chose a custom color and we also have an option of saving it to the color palette
+     *  - represented by hex digits
+     * Has also quite detailed options and we can as well add shades to the colors that we chose
+     *
+     * DatePicker Control
+     * ..................
+     * This element is very handy for calendars and some sort of any application that uses a date
+     * Let's add it at row-3, col-1
+     * The date selected may look a little bit differently depending on how your dates are in ypur part of the world
+     *  - In Kenya, we always use d/m/y but you can have a diff one also depending on how you've set your dates on your
+     * computer
+     *
      */
 }
