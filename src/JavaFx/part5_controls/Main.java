@@ -93,6 +93,9 @@ public class Main {
      *  - Typically when we add the Radio buttons, we also want 1 of them to be selected by default
      *  - Let's make our blue radio button to be selected by default
      *      - We need to set the selected prop to true
+     *  - Let's wrap the radio buttons in a VBox as well which can also be convenient because we can set the rowIndex and colIndex
+     *      once instead of setting that up separately for each radio
+     *      - Now we can remove the rowIndex and colIndex from each of the radio
      *
      * CheckBox Control
      * ................
@@ -123,8 +126,65 @@ public class Main {
      * If we wanted only 1 to be selected, we would have to put them in a ToggleGroup as we did earlier with radio buttons
      *  and that would enable only 1 to be selected at a time
      *
+     * TextField Control
+     * .................
+     * Gives the ability for the user to type info in so that we can actually then process the results & perform some action
+     *  with that data
+     * We'll add it to a new row and add it to the first col
+     * We can also initialize the field with text by setting the text prop though that can be irritating unless we also add
+     *  code to remove the text as soon as the user places the cursor in the text field
+     * This class also contains copy, cut, paste and select door methods that let us copy,cut , select & paste contents into the
+     *  clipboard
      *
+     * Password Control
+     * ................
+     * This control descends directly from the TextField control
+     * The only difference is that the password field masks whatever that has been typed into it
+     * Also it's copy and cut ()s won't do anything as you can't copy and paste into a password field
+     * Let's add 1 to our grid in the 2nd col, 2nd row
      *
+     * Combo Box / DropDown Control
+     * ............................
+     * Offers a user a choice of several options
+     * If we wanted to give the user 10 options, radio button wouldn't be the best choice as they'll probably take too
+     *  much room on your screen
+     * Combo box won't take much room and only reveals the contents when the user interacts with it
+     * Let's add 1 to our grid in (1,3)
+     *  - We use ComboBox element
+     *      - Then need to add a list of items which will be a separate selectable option
+     *          - we use items tag and within the element,then add FXCollections tag
+     *              - we then type fx:factory and set that to observableArrayList (rep the arraylist as a list of options)
+     *      - We add the options with the String element and provide fx:value="" and provide the text that we want for each option
+     * We have introduced new classes and attributes here:
+     *  - FXCollections , fx:factory , fx:value and the observableArrayList - will cover in a later lecture
+     * But essentially, what we're doing here is populating the combo box with a list of strings
+     * When we run and click on the combo box, we should see a pull down list of options
+     * We can also add the col span , if the content doesn't fit when the window is resized
+     *  - ColumnSpan allows the combo box to expands based on the length of the text as to how much space you want to
+     *     assign
+     * Sometime we might want to select 1 of the option as the default option so that the Combo box is not empty the first
+     *  time it's displayed
+     *  - Let's set the 4th option as the default option
+     * We do that after the items tag with a value element and add the String element with fx:value equal to the text we want
+     *  to select
+     * And now Option 4 is selected by default
+     * We can also set the combo box to editable though its not a very common use case by setting the editable property to true
+     *
+     * ChoiceBox Control
+     * .................
+     * This is closely related to ComboBox
+     * We use ChoiceBox element
+     * Has the same child elements as ComboBox
+     *  - items tag
+     *  - FXCollections tag
+     * Populate with String element with fx:value attribute passing the value you want to populate
+     * The only distinct difference is that each option has a space at the front of each choice
+     * Once the choice is selected , a tick or a check mark is placed at the front of the choice that we selected
+     * Apart from that there isn't much of a difference in how the user interacts with a combo box in a checkbox but there
+     *  are implementation differences
+     *  - The choice box is suited to a small no of items
+     *  - A combo box can handle a larger list of items
+     * Also, we can use a cell factory with a Combo box
      *
      *
      */
