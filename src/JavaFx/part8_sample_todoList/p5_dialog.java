@@ -151,8 +151,16 @@ public class p5_dialog {
      *  - To handle processing results / gather user input ,create a new to-do
      *  - Add to our Tododata instance and call addTodoItem() on TodoData singleton class
      *
+     * TodoData Singleton class
+     * .........................
+     * Add addTodoItem()
+     * - call add to List<TodoItem> todoItems variable
      *
-     *
+     * Next,
+     * We'll have to call processResults event handler in the main-windows controller
+     * We add it at the point where the user presses the ok btn
+     *     DialogController controller = fxmlLoader.getController();
+     *     controller.processResults();
      *
      *
      *
