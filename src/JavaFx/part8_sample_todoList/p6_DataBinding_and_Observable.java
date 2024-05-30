@@ -77,6 +77,11 @@ public class p6_DataBinding_and_Observable {
      *
      * But the problem is that the text doesn't wrap and what we need to do is to add wrapText property and set it to true
      *  to the text area
+     * Need to update the text area for the main-window and add wrapText property & set it to true
+     *
+     * Next,
+     * We'll highlight items in the list that have a deadline of set to delay, so that's the user doesn't have to click on each item to figure out
+     *  which ones they need to prioritize
      *
      */
 }
