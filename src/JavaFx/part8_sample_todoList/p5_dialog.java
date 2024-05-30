@@ -162,6 +162,46 @@ public class p5_dialog {
      *     DialogController controller = fxmlLoader.getController();
      *     controller.processResults();
      *
+     * Update ListView
+     * ...............
+     * The item was saved but not updated in the ListView automatically
+     * Let's explicitly add the item to the list view
+     *  - We'll do this in main-windows controller after calling processResults()
+     *  - We'll reset the listview data by setting its data to the updated list and that's going to be the quickest
+     *    way to get this to work for now
+     *     .i.e.
+     *          todoListView.getItems().setAll(TodoData.getInstance().getTodoItems());
+     * Notice now that the list view is updated automatically once we add a to-do item
+     *
+     * However, notice how it wasn't selected
+     * - We really should select the new item , which is probably what the user would expect to happen after you save an
+     *   item
+     * - We could get the items from the to-do data class and select the last one in the list , but it's really safer to
+     *    have the processResults() return the item that it created , then we'll know for sure that we're selecting the
+     *    new item
+     *
+     * So let's update the processResults() to return the new created item
+     * Next, on the DialogController
+     *  - store the returned item into a variable
+     *  - Then pass it to getSelectionModel().select() on the to-do list view variable
+     *      todoListView.getSelectionModel().select(newTodo);
+     * A new item is added and instantly selected
+     *
+     * Next,
+     * Let's add a title to the Dialog
+     * We can do that after initializing dialog owner by calling setTitle() on dialog and provide a string
+     *
+     * Next, we can set the headerText via code, we had done this inside the fxml around the headerText tags
+     * We do this by calling setHeaderText() on dialog and pass our preferred text/string
+     *
+     * The dialog header text is separated from the dialog content and is in a larger font
+     * And the dialog header text (in fxml) is the much smaller font
+     *
+     *
+     *
+     *
+     *
+     *
      *
      *
      */
