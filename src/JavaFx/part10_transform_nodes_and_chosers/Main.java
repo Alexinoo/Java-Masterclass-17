@@ -168,7 +168,10 @@ public class Main {
      *      - Add a try block
      *          - Desktop.getDesktop().browse(new URI("https://www.google.com"));
      *      - Catch both IOException and URISyntaxException (s)
+     *
      *  - Add a web view controller to our UI and display the contents of the web page within the WebView
+     *      - add WebView control
+     *
      *
      */
 }
