@@ -94,8 +94,81 @@ public class Main {
      *    not even see the files at all
      *  - though on Mac, we can see the other files, but they're not selectable
      *
+     * More on Choosers and Web Pages
+     * ..............................
+     * When the user wants to save , we call the showSaveDialog() instead of the showOpenDialog()
+     * We'll work with FileChooser instead
+     *  - comment on Directory chooser
+     * - call showSaveDialog()
+     * - print the path if the the file was chosen, otherwise, print no file chosen
+     *
+     * The difference between showSaveDialog() & showOpenDialog() is that with showSaveDialog(), the modal shows up with
+     *  save button whereas with showOpenDialog(), the dialog has an open btn to help you navigate and select files to
+     *  work with
+     *
+     * Next,
+     * We can also set the file chooser extension filters , so that the file can be saved with a certain file extension
+     *  that the user needs to define
+     * - We get the filters by calling getExtensionFilters() and then we'll add them to the existing list
+     *
+     * Next
+     *  - set Title for the File chooser dialog with setTitle(String str) on FIleChooser instance
+     *  - call getExtensionFilters().addAll() and pass (new File.Chooser.ExtensionFilter("Text","*.txt")
+     *  - separate with comma if you want to add more
+     *      chooser.getExtensionFilters().addAll(
+     *          new FileChooser.ExtensionFilter("Text","*.txt"),
+     *          new FileChooser.ExtensionFilter("PDF","*.pdf")
+     *       );
+     * We're are able to specify the file type that we want to save with the file extensions that we have specified
+     * above
+     * When we construct an instance of an extension filter, we pass the description of the files that have the file
+     *  extension as the 1st parameter and the file extension as the 2nd parameter
+     *
+     * Use Cases of File Choosers
+     * ..........................
+     * - File extension filters are useful as they limit the files the user sees, in case of an open dialog
+     * - When filters are set, the file chooser will only show files that have an extension that matches the filter
+     *
+     * Catch-all filter,
+     * - we can add all catch file extensions - populates All Files option in our File type drop down
+     *      - this means we have more flexibility to select any type of files that we need
+     *
+     * Images Filter
+     *  - we're not limited to 1 extension
+     *  - we can add a comma separated extensions for image files such as jpg,png, gif etc
+     *
+     * Select Multiple Files
+     *  - we open the dialog with showOpenMultipleDialog() and this returns a list of files
+     *  - loop through each if we want to print them
      *
      *
+     * HyperLink Control
+     * .................
+     * It descends from the Labelled class , displays text but is used to display a link
+     * - Add 1 to our fxml
+     * - changes to a link once we hover it, also underlined
+     * - Hyperlink control has 3 states
+     *      - unvisited
+     *      - clicked
+     *      - visited
+     * - The appearance of each state is different
+     * If we want the appearance of a visited hyperlink to revert back to that of an unvisited hyperlink, we can call the
+     *  visited() and pass the false sa the value
+     * To have something happen when we click the link, we still would have tro write an event handler
+     *  - we don't always have to go to a web page when a hyperlink control is clicked
+     *  - we could open a dialog or change something on the UI
+     *  - or display contextual help within the application
+     * Add onAction to the link - handleLinkClick
+     *
+     * Next,
+     * On the handleLinkClick() event handler
+     * Let's show the web page located in www.javafx.com/www.google.com
+     * We can do this in 2 ways
+     *  - Open through the system default browser
+     *      - Add a try block
+     *          - Desktop.getDesktop().browse(new URI("https://www.google.com"));
+     *      - Catch both IOException and URISyntaxException (s)
+     *  - Add a web view controller to our UI and display the contents of the web page within the WebView
      *
      */
 }
