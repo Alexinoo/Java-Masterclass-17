@@ -1,0 +1,81 @@
+package JavaFx.part12_javafx_challenge;
+
+public class JavaFXChallenge {
+    /*
+     * JavaFX Challenge
+     * ................
+     * - Create a Simple contact application that has a single main window
+     * - The application will allow the user to
+     *      - add a contact
+     *      - edit a contact
+     *      - delete a contact
+     * - Display the contacts using a TableView control
+     *
+     * - Create a Single Contact Menu with Add/Edit/Delete menu items
+     *
+     *
+     * - You'll want to load and store the contacts, which isn't a JavaFX topic
+     * - The instructor has provided a ContactData class that contains a quick and dirty way to load and store
+     *   contacts using XML
+     *
+     * - At this point, you don't have to understand the code, or change it
+     * - It doesn't do verification, so when we add and edit a contact, all the values must be provided for the code to
+     *   work
+     * - If we leave some values out, the code will throw an exception when we try to read the values from the application
+     *
+     * Next,
+     * - Add code to the ContactData class to complete the challenge
+     *      - There are comments that indicate where your code should go
+     *
+     * Hints:
+     * 1. Create a Contact class to store individual contacts
+     *   - For each contact, store the first name, last name, phone number and notes
+     * 2. To get Data binding to work, store the contact information as SimpleStringProperty fields
+     * 3. The To-doList app we worked on in an earlier lecture covers 90% of what you'll need to complete this challenge
+     *
+     *
+     * Steps to reproduce
+     * ..................
+     * - Create a data model package
+     *   - is where data for the application will be stored
+     *   - the data model classes should be the only classes that can change the data
+     *   - data will be saved to an xml file
+     *
+     * But in a real world application, you might do the same or alternatively read from a database or even fetch it from
+     *  some API
+     * Since only the data model classes can touch the data, if we want to change where the data is coming from in the future
+     *  or the way we fetch the data, then we should only change the data model classes and won't have to touch the rest
+     *  of the application
+     * That's why keeping the data and the UI separately is highly recommended
+     *
+     * Step 1
+     * Create Data model package
+     * Create 2 classes
+     *  - Contact class that contain info for a single contact
+     *  - ContactData class that contain all the contacts
+     *      - is where we'll initialize the List of contacts,
+     *      - load and save contacts
+     *      - if we ever want to change or load and store contacts, we'll only do those changes from this class
+     *
+     * Contact Class
+     *  - Fields: (Declare them as of type SimpleStringProperty rather than strings to take advantage of the data binding)
+     *    - Initialize all of them to empty string by calling SimpleStringProperty("")
+     *      - SimpleStringProperty firstName
+     *      - SimpleStringProperty lastName
+     *      - SimpleStringProperty phoneNumber
+     *      - SimpleStringProperty notes
+     *  - Constructor
+     *   - generate constructor manually - if we use IntelliJ generator, this will create a constructor that accepts
+     *     SimpleStringProperty arguments, but we only want to accept strings,
+     *   - we don't want the ContactData class to have to know that we're storing every bit of contact info as SimpleStringProperty
+     *   - use set() to set the value of the property
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     */
+}
