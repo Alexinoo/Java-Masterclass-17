@@ -170,7 +170,13 @@ public class Main {
      *      - Catch both IOException and URISyntaxException (s)
      *
      *  - Add a web view controller to our UI and display the contents of the web page within the WebView
-     *      - add WebView control
+     *      - add WebView control with an fx:id
+     *      - add instance variable for the webView
+     *      - add the handler - use the handleClick
+     *  - The WebEngine is the powerhouse that drives the display of the web page and we can actually do a
+     *    lot with it
+     *  - It gives us access to the web page's document object model and we can even use that to execute Javascript
+     *  - Refer to the documentation for web engine
      *
      *
      */
