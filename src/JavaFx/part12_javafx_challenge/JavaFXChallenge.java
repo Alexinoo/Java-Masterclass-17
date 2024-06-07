@@ -150,7 +150,31 @@ public class JavaFXChallenge {
      *          - add fx:id to the text fields to reference them in the ContactController
      *
      *
+     * ////////////////////////////////////////
+     * Event Handler for Dialog Controller
+     * ////////////////////////////////////////
      *
+     * - We want dialog to be modal and tied to the parent window of the app,
+     *   - assign fx:id to the BorderPane in the main-view fxml
+     *
+     * MainController
+     *   - create an instance variable for the BorderPane above in the ContactController
+     *   - add event handler for showing the dialog
+     *      - Initialize dialog
+     *      - set owner to parent window
+     *      - set title
+     *      - create FXMLLoader instance
+     *      - call setLocation on FXMLLoader instance and pass the contact-view.fxml
+     *      - add a try block
+     *          - call getDialogPane().setContent() on dialog and pass the contact view
+     *          - handle any IOException
+     *              - print stacktrace
+     *              - abort
+     *  - set dialog buttons
+     *      - call getDialogPane().getButtonTypes().add(ButtonType.OK) on dialog to add OK button
+     *      - call getDialogPane().getButtonTypes().add(ButtonType.CANCEL) on dialog to add CANCEL button
+     *
+     *  - Call showAndWait() on dialog and store that in result variable of type Optional
      *
      *
      *
