@@ -219,7 +219,9 @@ public class JavaFXChallenge {
      * If we did a mistake and we wanted to change things, we cna also do that in the contact.xml file since we haven't added the edit functionality
      *
      *
-     *
+     * ///////////////////////////////
+     * EDIT CONTACT FUNCTIONALITY
+     * //////////////////////////////
      *
      *
      *
