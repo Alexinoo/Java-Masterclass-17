@@ -64,11 +64,44 @@ public class JavaFXChallenge {
      *      - SimpleStringProperty lastName
      *      - SimpleStringProperty phoneNumber
      *      - SimpleStringProperty notes
+     *
      *  - Constructor
+     *  - Parameterized Constructor
      *   - generate constructor manually - if we use IntelliJ generator, this will create a constructor that accepts
      *     SimpleStringProperty arguments, but we only want to accept strings,
      *   - we don't want the ContactData class to have to know that we're storing every bit of contact info as SimpleStringProperty
      *   - use set() to set the value of the property
+     *  - Default Constructor
+     *   - no args constructor used when loading our saved contacts
+     *
+     * Getters and Setters
+     *  - Generate getters and setters for the 4 fields
+     *      - Generates 2 setters
+     *       - one that returns a String and another one that returns SimpleStringProperty which is just fine
+     *
+     * toString()
+     *  - Override toString() , though we may not use it but if we ever need to print the contact, we'd want to see the
+     *    values and not the obj reference
+     *
+     *
+     * Next
+     * Work on our ContactData class which will hold all our contacts
+     * - Create ContactData class
+     * - Copy code from the resource section and add it here
+     *
+     * Default Constructor
+     * - Initialize contacts to an observableArrayList
+     *   - We've created an empty list by calling observableArrayList() from the FXCollections class
+     *
+     * Next
+     * Add ObservableList<Contact> getContacts()
+     *  - returns contacts
+
+     * Add void addContacts(Contact item)
+     *  - call add() on contacts list and pass the new item
+     *
+     * Add void deleteContacts(Contact item)
+     *  - call remove() on contacts list and pass the contact to remove
      *
      *
      *
