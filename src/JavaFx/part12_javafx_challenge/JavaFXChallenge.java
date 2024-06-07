@@ -105,6 +105,51 @@ public class JavaFXChallenge {
      *
      *
      *
+     * //////////////////////////////////////////////////////////////////////
+     * User Interface
+     * /////////////////////////////////////////////////////////////////////
+     *
+     * - Will contain a table that will occupy the entire window
+     * - We'll use BorderPane rather than the AnchorPane
+     *   - Add a center position
+     *      - Add TableView control and assign it a fx:id
+     *        - define the table using columns elements and TableColumn class
+     *          - then set the text property to the text that we want for the column heading to display
+     *        - add a cellValueFactory element
+     *          - add PropertyValueFactory with a property properties and set it to "firstName" which rep the fields
+     *      - Copy TableColumn element and update the properties respectively
+     * - Since we want to take advantage of data binding and have the table automatically updated, when a contact is added
+     *   , deleted or changed, we needed to assign a cellValueFactory for each column
+     * - We've assigned an instance of the property value factory class which is specifically designed to be used with the
+     *   cell value factory of a table column
+     * - This is how we use data-binding with tables
+     * - We've assigned self-explanatory labels to each column,
+     * - The value we assigned to the property field, of property field value MUST match the name of the corresponding
+     *   field in the Contact class - mapping
+     *
+     * - Once we've associated the table with our contacts list, the table column will notice when the first name value
+     *   of a contact changes, and it will update the value it's displaying
+     * - In other words, we won't have to update the table explicitly ourselves
+     *
+     * Next
+     * Add menu to the top position of the BorderPane
+     *  - Add <MenuBar>
+     *      - Add <menus>
+     *          - Add <Menu> with "Contacts" text
+     *              - Add <items>
+                        - Add <MenuItem> with "New.." as the text
+     *                      - add event handler for opening the add contact dialog "showAddContactDialog"
+     *
+     * Next
+     * Add the fxml for dialog modal when showAddContactDialog() is invoked when the menu is selected
+     *  - create a new fxml file "contact-dialog.fxml"
+     *  - use DialogPane as the root element
+     *      - Add headerText element with some instructions to the user
+     *      - Add content element
+     *          - add GridPane to align labels and text fields nicely
+     *          - add fx:id to the text fields to reference them in the ContactController
+     *
+     *
      *
      *
      *
