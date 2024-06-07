@@ -175,6 +175,62 @@ public class JavaFXChallenge {
      *      - call getDialogPane().getButtonTypes().add(ButtonType.CANCEL) on dialog to add CANCEL button
      *
      *  - Call showAndWait() on dialog and store that in result variable of type Optional
+     *      - check if OK button is pressed
+     *
+     * Next,
+     * Create an instance variable of the ContactData class
+     *  private ContactData data
+     *
+     * Add initialize()
+     *  - create an instance of the ContactData class
+     *  - read saved contacts
+     *
+     * Create an instance variable for the TableView
+     *  - Initialize TableView "contactsTable"
+     *  - populate contactsTable by calling setItems() and pass
+     *
+     *
+     * Next
+     * Handle new contact - info submitted by the user
+     * At the moment, this isn't accessible from the main controller
+     * We have to get the info using the ContactController and provide a way for the main controller to get the new contact
+     * Let's add getNewContact() to the ContactController , which will gather the info provided by the user
+     *  - Create a new contact instance
+     *  - return the instance to the caller
+     *
+     *
+     * Next
+     * When the user presses OK,
+     *  - we'll get a reference to the ContactController
+     *      - call fxmlLoader.getController() - gets controller associated with the fxml file provided
+     *      - call getNewContact() from the Contact class
+     *      - pass newContact to the contacts list
+     *  - we'll save new contact to the xml file by saving all the contacts
+     *      - call saveContacts()
+     *  - we'll do this anytime the user adds/edits/deletes a contact
+     *
+     * Add a new contact
+     *  - Added a contact - which appears at the TableView automatically
+     *
+     * Next,
+     * Close the application and run it again and see whether our content will be loaded
+     *  - And we now have our contact successfully loaded from the xml file, when the application starts
+     *
+     * If we did a mistake and we wanted to change things, we cna also do that in the contact.xml file since we haven't added the edit functionality
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
      *
      *
      *
