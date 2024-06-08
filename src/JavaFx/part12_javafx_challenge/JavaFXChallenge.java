@@ -223,6 +223,37 @@ public class JavaFXChallenge {
      * EDIT CONTACT FUNCTIONALITY
      * //////////////////////////////
      *
+     * - Add an edit menu to our Contacts menu bar and attach event handler "showEditContactDialog"
+     * - We'll re-use the UI that we used for adding contact
+     *   - we'll change the header text of the dialog and then fill the fields with the existing values of the
+     *     contact that we're editing
+     *   - when the user presses OK, we don't want to add a new contact rather update the existing contact instance
+     *   - we need to know which contact the user wants to edit, i.e. the contact selected by the user in the table
+     *      - if nothing is selected,
+     *          - show a msg box that tells the user to select the item that they want to edit
+     *          - set the header text to null
+     *              - alerts can have header text, just like dialogs, but we don't need it & so we've set it to null
+     *          - set the content text - info t what the user needs to do
+     *          - call showAndWait() - makes it a modal
+     *      - otherwise, if indeed, the contact was selected
+     *          - create a dialog so that we can pop up the dialog containing the fields and enable the user to edit
+     *              - call editContact on the ContactController
+     *              - if user presses OK, call updateContact from ContactController
+     *                  - call saveContacts - update xml
+     *
+     * ContactController.editContact()
+     *  - populate the fields on the dialog with the details from the contact object passed to this method
+     *  - call setText() on each text field and pass the getters for each field
+     *      - e.g.
+     *          firstNameField.setText(contact.getFirstName());
+     *
+     * ContactController.editContact()
+     *  - we need to do the opposite
+     *      - get the data populated in the dialog and update the xml data
+     *      - call the setters for each field and pass the field from the dialog from the contact object
+     *      - e.g.
+     *          contact.setFirstName(firstNameField.getText());
+     *
      *
      *
      *
