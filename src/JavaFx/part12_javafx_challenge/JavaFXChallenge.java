@@ -234,7 +234,8 @@ public class JavaFXChallenge {
      *          - set the header text to null
      *              - alerts can have header text, just like dialogs, but we don't need it & so we've set it to null
      *          - set the content text - info t what the user needs to do
-     *          - call showAndWait() - makes it a modal
+     *          - call showAndWait() - makes it a modal (waits until the user does something)
+     *          - return - sort of acknowledge the message and terminate the dialog
      *      - otherwise, if indeed, the contact was selected
      *          - create a dialog so that we can pop up the dialog containing the fields and enable the user to edit
      *              - call editContact on the ContactController
@@ -253,6 +254,55 @@ public class JavaFXChallenge {
      *      - call the setters for each field and pass the field from the dialog from the contact object
      *      - e.g.
      *          contact.setFirstName(firstNameField.getText());
+     *
+     *
+     * /////////////////////////////////////
+     *  DELETE CONTACT FUNCTIONALITY
+     * ////////////////////////////////////
+     * - First, add delete menu item to the Contacts menu bar and attach the event handler "deleteContact"
+     * - However, we don't need a dialog
+     *  - instead, we'll show a confirm delete alert box for the contact selected
+     *
+     * - Add deleteContact() in the MainController
+     *  - get the selected contact
+     *      - if no contact is selected, alert the user with an alert box that they need to select a contact
+     *      - otherwise
+     *          - add a confirmation alert
+     *              - set title
+     *              - set header text to null
+     *              - set content text to some text that lets the users know the contact they want to delete & if they want to proceed
+     *          - add handling of the alert
+     *              - call showAndWait() on the alert
+     *              - if the user confirms by clicking OK
+     *                  - call deleteContact() and pass the selected contact to delete
+     *              - after the deletion is complete
+     *                  - call saveContacts() - to save the remaining contacts
+     *
+     * ////////////////////////////////////
+     * WINDOW RESIZE - COLUMN RESIZE POLICY
+     * ////////////////////////////////////
+     *
+     * Next,
+     * It would be nice if the table fills the entire parent window
+     * Depending on the contacts you added, you may have found there's some empty space to the right of the columns
+     *  - and if we actually makes it bigger, we end up having a lot of space to the right
+     *  - and if we make it smaller, we'd want to see the table resizing just to basically fit the window, so that it
+     *    occupies the entire width
+     *
+     * So
+     * Let's add a bonus tip here to get that to work
+     *  - we need to set the column resize policy of the table view so that the widths of the columns will add up to the
+     *    width of the table view
+     *  - right now the table view is occupying the full width of the window as we can see alternating background color
+     *    of the rows stretching across the entire width of the window
+     *  - However, the column widths , themselves aren't adding up to the width of the TableView, i.e. the unoccupied space
+     *    of the table view
+     *
+     * In the main-view.fxml
+     *  - Just below where we've defined the TableView definition
+     *      - add columnResizePolicy element
+     *          - add TableView class
+     *              add fx:constant="CONSTRAINED_RESIZE_POLICY" property to this class
      *
      *
      *
